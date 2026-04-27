@@ -10,6 +10,14 @@
 #include "au3-builtin-effects/EqualizationFilter.h"
 
 namespace au::effects {
+namespace {
+// Tunable: each zoom step widens or narrows the visible dB range by this
+// amount on each side (so the total range changes by 2×step).
+constexpr float kZoomStepDb = 6.0f;
+constexpr float kMinDbHalfRange = 6.0f;    // smallest half-range allowed when zooming in
+constexpr float kMaxDbHalfRange = 60.0f;   // largest half-range allowed when zooming out
+}
+
 FilterCurveEqViewModel::FilterCurveEqViewModel(QObject* parent, int instanceId)
     : BuiltinEffectModel{parent, instanceId},
     m_curveModel(new FilterCurveModel(this, effect<FilterCurveEq>()))
@@ -22,6 +30,7 @@ void FilterCurveEqViewModel::doReload()
     emit curveModelChanged();
     emit freqRangeChanged();
     emit gridlinesVisibleChanged();
+    emit dbRangeChanged();
 }
 
 FilterCurveModel* FilterCurveEqViewModel::curveModel() const
@@ -31,12 +40,48 @@ FilterCurveModel* FilterCurveEqViewModel::curveModel() const
 
 double FilterCurveEqViewModel::dbMin() const
 {
-    return -30.0;
+    return effect<FilterCurveEq>().mCurvesList.mParameters.mdBMin;
 }
 
 double FilterCurveEqViewModel::dbMax() const
 {
-    return 30.0;
+    return effect<FilterCurveEq>().mCurvesList.mParameters.mdBMax;
+}
+
+bool FilterCurveEqViewModel::canZoomIn() const
+{
+    const auto& parameters = effect<FilterCurveEq>().mCurvesList.mParameters;
+    return parameters.mdBMax - kZoomStepDb >= kMinDbHalfRange
+           && -parameters.mdBMin - kZoomStepDb >= kMinDbHalfRange;
+}
+
+bool FilterCurveEqViewModel::canZoomOut() const
+{
+    const auto& parameters = effect<FilterCurveEq>().mCurvesList.mParameters;
+    return parameters.mdBMax + kZoomStepDb <= kMaxDbHalfRange
+           && -parameters.mdBMin + kZoomStepDb <= kMaxDbHalfRange;
+}
+
+void FilterCurveEqViewModel::zoomIn()
+{
+    if (!canZoomIn()) {
+        return;
+    }
+    auto& parameters = effect<FilterCurveEq>().mCurvesList.mParameters;
+    parameters.mdBMin += kZoomStepDb;
+    parameters.mdBMax -= kZoomStepDb;
+    emit dbRangeChanged();
+}
+
+void FilterCurveEqViewModel::zoomOut()
+{
+    if (!canZoomOut()) {
+        return;
+    }
+    auto& parameters = effect<FilterCurveEq>().mCurvesList.mParameters;
+    parameters.mdBMin -= kZoomStepDb;
+    parameters.mdBMax += kZoomStepDb;
+    emit dbRangeChanged();
 }
 
 double FilterCurveEqViewModel::loFreq() const

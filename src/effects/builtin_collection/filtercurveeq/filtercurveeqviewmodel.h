@@ -14,11 +14,13 @@ class FilterCurveEqViewModel : public BuiltinEffectModel
 {
     Q_OBJECT
     Q_PROPERTY(FilterCurveModel * curveModel READ curveModel NOTIFY curveModelChanged FINAL)
-    Q_PROPERTY(double dbMin READ dbMin CONSTANT FINAL)
-    Q_PROPERTY(double dbMax READ dbMax CONSTANT FINAL)
+    Q_PROPERTY(double dbMin READ dbMin NOTIFY dbRangeChanged FINAL)
+    Q_PROPERTY(double dbMax READ dbMax NOTIFY dbRangeChanged FINAL)
     Q_PROPERTY(double loFreq READ loFreq NOTIFY freqRangeChanged FINAL)
     Q_PROPERTY(double hiFreq READ hiFreq NOTIFY freqRangeChanged FINAL)
     Q_PROPERTY(bool gridlinesVisible READ gridlinesVisible WRITE setGridlinesVisible NOTIFY gridlinesVisibleChanged FINAL)
+    Q_PROPERTY(bool canZoomIn READ canZoomIn NOTIFY dbRangeChanged FINAL)
+    Q_PROPERTY(bool canZoomOut READ canZoomOut NOTIFY dbRangeChanged FINAL)
 
 public:
     FilterCurveEqViewModel(QObject* parent, int instanceId);
@@ -30,11 +32,17 @@ public:
     double hiFreq() const;
     bool gridlinesVisible() const;
     void setGridlinesVisible(bool);
+    bool canZoomIn() const;
+    bool canZoomOut() const;
+
+    Q_INVOKABLE void zoomIn();
+    Q_INVOKABLE void zoomOut();
 
 signals:
     void curveModelChanged();
     void freqRangeChanged();
     void gridlinesVisibleChanged();
+    void dbRangeChanged();
 
 private:
     void doReload() override;

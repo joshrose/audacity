@@ -120,13 +120,43 @@ BuiltinEffectBase {
             anchors.bottomMargin: 16
 
             FlatButton {
+                id: zoomOutButton
+
+                width: 28
+                height: 28
+
+                navigation.panel: root.buttonsNavigationPanel
+                navigation.order: 0
+
+                text: "-"
+                enabled: filterCurveEq.canZoomOut
+
+                onClicked: filterCurveEq.zoomOut()
+            }
+
+            FlatButton {
+                id: zoomInButton
+
+                width: 28
+                height: 28
+
+                navigation.panel: root.buttonsNavigationPanel
+                navigation.order: zoomOutButton.navigation.order + 1
+
+                text: "+"
+                enabled: filterCurveEq.canZoomIn
+
+                onClicked: filterCurveEq.zoomIn()
+            }
+
+            FlatButton {
                 id: flattenButton
 
                 width: 64
                 height: 28
 
                 navigation.panel: root.buttonsNavigationPanel
-                navigation.order: 0
+                navigation.order: zoomInButton.navigation.order + 1
 
                 text: qsTrc("effects/filtercurveeq", "Flatten")
 
