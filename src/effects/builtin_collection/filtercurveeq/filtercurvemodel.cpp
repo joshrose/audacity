@@ -113,7 +113,7 @@ void FilterCurveModel::rebuildFromEnvelope()
 {
     m_points.clear();
 
-    const auto& env = m_eq.mCurvesList.mParameters.mLogEnvelope;
+    const auto& env = m_eq.mCurvesList.mParameters.ChooseEnvelope();
     const size_t n = env.GetNumberOfPoints();
     if (n == 0) {
         return;
@@ -131,7 +131,7 @@ void FilterCurveModel::rebuildFromEnvelope()
 
 void FilterCurveModel::syncToEnvelope()
 {
-    auto& env = m_eq.mCurvesList.mParameters.mLogEnvelope;
+    auto& env = m_eq.mCurvesList.mParameters.ChooseEnvelope();
     while (env.GetNumberOfPoints() > 0) {
         env.Delete(0);
     }

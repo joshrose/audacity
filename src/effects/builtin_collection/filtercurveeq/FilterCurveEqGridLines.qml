@@ -10,10 +10,13 @@ Item {
     property real dbMax
     property int dbStep: 6
 
-    // frequency axis (log)
+    // frequency axis
     property real loFreq
     property real hiFreq
-    property var freqTicks: [50, 100, 500, 1000, 5000, 10000, 20000]
+    property bool linFreqScale: false
+    property var logFreqTicks: [50, 100, 500, 1000, 5000, 10000, 20000]
+    property var linFreqTicks: [0, 5000, 10000, 15000, 20000]
+    readonly property var freqTicks: linFreqScale ? linFreqTicks : logFreqTicks
 
     property bool linesVisible: true
 
@@ -48,6 +51,12 @@ Item {
             })()
 
         function freqToNorm(f) {
+            if (root.linFreqScale) {
+                if (root.hiFreq <= 0) {
+                    return 0
+                }
+                return f / root.hiFreq
+            }
             if (f <= 0 || prv.denom <= 0) {
                 return 0
             }

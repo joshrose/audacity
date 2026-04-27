@@ -9,6 +9,8 @@
 #include "au3-builtin-effects/EqualizationCurvesList.h"
 #include "au3-builtin-effects/EqualizationFilter.h"
 
+#include "../equalization_common/equalizationenvelopeutils.h"
+
 namespace au::effects {
 namespace {
 // Tunable: each zoom step widens or narrows the visible dB range by this
@@ -31,6 +33,7 @@ void FilterCurveEqViewModel::doReload()
     emit freqRangeChanged();
     emit gridlinesVisibleChanged();
     emit dbRangeChanged();
+    emit linFreqScaleChanged();
 }
 
 FilterCurveModel* FilterCurveEqViewModel::curveModel() const
@@ -107,5 +110,27 @@ void FilterCurveEqViewModel::setGridlinesVisible(bool v)
     }
     parameters.mDrawGrid = v;
     emit gridlinesVisibleChanged();
+}
+
+bool FilterCurveEqViewModel::linFreqScale() const
+{
+    return effect<FilterCurveEq>().mCurvesList.mParameters.mLin;
+}
+
+void FilterCurveEqViewModel::setLinFreqScale(bool v)
+{
+    auto& parameters = effect<FilterCurveEq>().mCurvesList.mParameters;
+    if (parameters.mLin == v) {
+        return;
+    }
+    if (v) {
+        eq_common::envLogToLin(parameters);
+    } else {
+        eq_common::envLinToLog(parameters);
+    }
+    parameters.mLin = v;
+    m_curveModel->reload();
+    emit linFreqScaleChanged();
+    emit curveModelChanged();
 }
 }

@@ -55,6 +55,7 @@ BuiltinEffectBase {
                 dbMax: filterCurveEq.dbMax
                 loFreq: filterCurveEq.loFreq
                 hiFreq: filterCurveEq.hiFreq
+                linFreqScale: filterCurveEq.linFreqScale
                 linesVisible: filterCurveEq.gridlinesVisible
             }
 
@@ -178,12 +179,27 @@ BuiltinEffectBase {
             }
 
             CheckBox {
-                id: showGridlinesCheckBox
+                id: linFreqScaleCheckBox
 
                 anchors.verticalCenter: parent.verticalCenter
 
                 navigation.panel: root.buttonsNavigationPanel
                 navigation.order: invertButton.navigation.order + 1
+
+                text: qsTrc("effects/filtercurveeq", "Linear Frequency Scale")
+
+                checked: filterCurveEq.linFreqScale
+
+                onClicked: filterCurveEq.linFreqScale = !filterCurveEq.linFreqScale
+            }
+
+            CheckBox {
+                id: showGridlinesCheckBox
+
+                anchors.verticalCenter: parent.verticalCenter
+
+                navigation.panel: root.buttonsNavigationPanel
+                navigation.order: linFreqScaleCheckBox.navigation.order + 1
 
                 text: qsTrc("effects/filtercurveeq", "Show grid lines")
 
