@@ -3,6 +3,8 @@
  */
 #include "filtercurvemodel.h"
 
+#include <algorithm>
+
 #include "filtercurveeq.h"
 
 #include "au3-builtin-effects/EqualizationCurvesList.h"
@@ -20,7 +22,7 @@ void FilterCurveModel::reload()
     auto& parameters = m_eq.mCurvesList.mParameters;
     parameters.mDrawMode = true;
 
-    rebuildPoints();
+    rebuildFromEnvelope();
     emit pointsChanged();
 }
 
@@ -34,7 +36,57 @@ double FilterCurveModel::defaultValue() const
     return 0.0;
 }
 
-void FilterCurveModel::rebuildPoints()
+void FilterCurveModel::setPoint(int index, double x, double y, bool completed)
+{
+    if (index < 0 || index >= m_points.size()) {
+        return;
+    }
+    beginDragIfNeeded();
+
+    m_points[index] = QPointF(x, y);
+    syncToEnvelope();
+    emit pointsChanged();
+
+    commitIfCompleted(completed);
+}
+
+void FilterCurveModel::addPoint(double x, double y, bool completed)
+{
+    beginDragIfNeeded();
+
+    m_points.append(QPointF(x, y));
+    syncToEnvelope();
+    emit pointsChanged();
+
+    commitIfCompleted(completed);
+}
+
+void FilterCurveModel::removePoint(int index, bool completed)
+{
+    if (index < 0 || index >= m_points.size()) {
+        return;
+    }
+    beginDragIfNeeded();
+
+    m_points.remove(index);
+    syncToEnvelope();
+    emit pointsChanged();
+
+    commitIfCompleted(completed);
+}
+
+void FilterCurveModel::cancelDrag()
+{
+    if (!m_dragSnapshot) {
+        return;
+    }
+    m_points = *m_dragSnapshot;
+    m_dragSnapshot.reset();
+    syncToEnvelope();
+    emit pointsChanged();
+}
+
+void FilterCurveModel::rebuildFromEnvelope()
 {
     m_points.clear();
 
@@ -52,5 +104,35 @@ void FilterCurveModel::rebuildPoints()
     for (size_t i = 0; i < n; ++i) {
         m_points.append(QPointF(when[i], value[i]));
     }
+}
+
+void FilterCurveModel::syncToEnvelope()
+{
+    auto& env = m_eq.mCurvesList.mParameters.mLogEnvelope;
+    while (env.GetNumberOfPoints() > 0) {
+        env.Delete(0);
+    }
+    auto sorted = m_points;
+    std::sort(sorted.begin(), sorted.end(),
+              [](const QPointF& a, const QPointF& b) { return a.x() < b.x(); });
+    for (const auto& p : sorted) {
+        env.Insert(p.x(), p.y());
+    }
+}
+
+void FilterCurveModel::beginDragIfNeeded()
+{
+    if (!m_dragSnapshot) {
+        m_dragSnapshot = m_points;
+    }
+}
+
+void FilterCurveModel::commitIfCompleted(bool completed)
+{
+    if (!completed) {
+        return;
+    }
+    m_eq.mCurvesList.EnvelopeUpdated();
+    m_dragSnapshot.reset();
 }
 }

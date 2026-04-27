@@ -60,6 +60,22 @@ BuiltinEffectBase {
             Component.onCompleted: {
                 curve.init()
             }
+
+            onPointMoved: function(index, x, y, completed) {
+                filterCurveEq.curveModel.setPoint(index, x, y, completed)
+            }
+
+            onPointAdded: function(x, y, completed) {
+                filterCurveEq.curveModel.addPoint(x, y, completed)
+            }
+
+            onPointRemoved: function(index, completed) {
+                filterCurveEq.curveModel.removePoint(index, completed)
+            }
+
+            onDragCancelled: {
+                filterCurveEq.curveModel.cancelDrag()
+            }
         }
     }
 }

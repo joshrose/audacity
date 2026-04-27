@@ -7,6 +7,8 @@
 #include <QPointF>
 #include <QVector>
 
+#include <optional>
+
 namespace au::effects {
 class FilterCurveEq;
 
@@ -24,13 +26,22 @@ public:
     QVector<QPointF> points() const;
     double defaultValue() const;
 
+    Q_INVOKABLE void setPoint(int index, double x, double y, bool completed);
+    Q_INVOKABLE void addPoint(double x, double y, bool completed);
+    Q_INVOKABLE void removePoint(int index, bool completed);
+    Q_INVOKABLE void cancelDrag();
+
 signals:
     void pointsChanged();
 
 private:
-    void rebuildPoints();
+    void rebuildFromEnvelope();
+    void syncToEnvelope();
+    void commitIfCompleted(bool completed);
+    void beginDragIfNeeded();
 
     FilterCurveEq& m_eq;
     QVector<QPointF> m_points;
+    std::optional<QVector<QPointF> > m_dragSnapshot;
 };
 }
