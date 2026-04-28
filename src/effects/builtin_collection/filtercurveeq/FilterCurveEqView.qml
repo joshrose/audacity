@@ -5,6 +5,7 @@ import Muse.UiComponents
 import Audacity.Effects
 import Audacity.BuiltinEffects
 import Audacity.BuiltinEffectsCollection
+import Audacity.UiComponents
 
 BuiltinEffectBase {
     id: root
@@ -12,8 +13,8 @@ BuiltinEffectBase {
     property string title: qsTrc("effects/filtercurveeq", "Filter Curve EQ")
     property bool isApplyAllowed: true
 
-    width: boardRectangle.width
-    implicitHeight: boardRectangle.height
+    width: column.width
+    implicitHeight: column.height
 
     builtinEffectModel: FilterCurveEqViewModelFactory.createModel(root, root.instanceId)
     numNavigationPanels: 1
@@ -26,38 +27,157 @@ BuiltinEffectBase {
         order: 1
     }
 
-    Rectangle {
-        id: boardRectangle
+    Column {
+        id: column
 
-        width: 720
-        height: 480
-        anchors.centerIn: parent
-
-        radius: 8
-        color: ui.theme.backgroundSecondaryColor
-        border.color: ui.theme.strokeColor
+        padding: 0
+        spacing: 8
 
         Item {
-            id: plotContainer
+            id: buttonsRow
 
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.bottom: buttonsRow.top
-            anchors.margins: 16
+            width: gridPlot.width
+            height: Math.max(leftGroup.height, rightGroup.height)
 
-            FilterCurveEqGridLines {
-                id: gridLines
+            Row {
+                id: leftGroup
 
-                anchors.fill: parent
+                spacing: 8
+                topPadding: 6
+                bottomPadding: 6
 
-                dbMin: filterCurveEq.dbMin
-                dbMax: filterCurveEq.dbMax
-                loFreq: filterCurveEq.loFreq
-                hiFreq: filterCurveEq.hiFreq
-                linFreqScale: filterCurveEq.linFreqScale
-                linesVisible: filterCurveEq.gridlinesVisible
+                anchors.left: parent.left
+                anchors.leftMargin: gridPlot.backgroundX
+                anchors.verticalCenter: parent.verticalCenter
+
+                CheckBox {
+                    id: linFreqScaleCheckBox
+
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    navigation.panel: root.buttonsNavigationPanel
+                    navigation.order: 0
+
+                    text: qsTrc("effects/filtercurveeq", "Linear frequency scale")
+
+                    checked: filterCurveEq.linFreqScale
+
+                    onClicked: filterCurveEq.linFreqScale = !filterCurveEq.linFreqScale
+                }
+
+                CheckBox {
+                    id: showGridlinesCheckBox
+
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    navigation.panel: root.buttonsNavigationPanel
+                    navigation.order: linFreqScaleCheckBox.navigation.order + 1
+
+                    text: qsTrc("effects/filtercurveeq", "Grid lines")
+
+                    checked: filterCurveEq.gridlinesVisible
+
+                    onClicked: filterCurveEq.gridlinesVisible = !filterCurveEq.gridlinesVisible
+                }
             }
+
+            Row {
+                id: rightGroup
+
+                spacing: 4
+                topPadding: 6
+                bottomPadding: 6
+
+                anchors.right: parent.right
+                anchors.rightMargin: gridPlot.width - (gridPlot.backgroundX + gridPlot.backgroundWidth)
+                anchors.verticalCenter: parent.verticalCenter
+
+                FlatButton {
+                    id: resetButton
+
+                    width: 64
+                    height: 28
+
+                    navigation.panel: root.buttonsNavigationPanel
+                    navigation.order: showGridlinesCheckBox.navigation.order + 1
+
+                    text: qsTrc("effects/filtercurveeq", "Reset")
+
+                    onClicked: filterCurveEq.curveModel.flatten()
+                }
+
+                FlatButton {
+                    id: invertButton
+
+                    width: 64
+                    height: 28
+
+                    navigation.panel: root.buttonsNavigationPanel
+                    navigation.order: resetButton.navigation.order + 1
+
+                    text: qsTrc("effects/filtercurveeq", "Invert")
+
+                    onClicked: filterCurveEq.curveModel.invert()
+                }
+
+                FlatButton {
+                    id: zoomInButton
+
+                    width: 28
+                    height: 28
+
+                    navigation.panel: root.buttonsNavigationPanel
+                    navigation.order: invertButton.navigation.order + 1
+
+                    icon: IconCode.ZOOM_IN
+                    enabled: filterCurveEq.canZoomIn
+
+                    onClicked: filterCurveEq.zoomIn()
+                }
+
+                FlatButton {
+                    id: zoomOutButton
+
+                    width: 28
+                    height: 28
+
+                    navigation.panel: root.buttonsNavigationPanel
+                    navigation.order: zoomInButton.navigation.order + 1
+
+                    icon: IconCode.ZOOM_OUT
+                    enabled: filterCurveEq.canZoomOut
+
+                    onClicked: filterCurveEq.zoomOut()
+                }
+            }
+        }
+
+        GridPlot {
+            id: gridPlot
+
+            width: 808
+            height: 384
+
+            xTickPosition: GridPlot.Bottom
+            yTickPosition: GridPlot.Left
+
+            alignEdgeLabels: true
+
+            xTicks: (function () {
+                    var result = []
+                    for (var i = filterCurveEq.loFreq; i <= filterCurveEq.hiFreq; i += 5000) {
+                        result.push(i)
+                    }
+                    return result
+                })()
+
+            yTicks: (function () {
+                    var result = []
+                    for (var i = filterCurveEq.dbMin; i <= filterCurveEq.dbMax; i += 6) {
+                        result.push(i)
+                    }
+                    return result
+                })()
 
             Item {
                 // Clips the plot so that only the currently-visible dB band is shown.
@@ -65,10 +185,7 @@ BuiltinEffectBase {
                 // scaled & offset so the [dbMin, dbMax] window aligns with this clip.
                 id: plotClip
 
-                x: gridLines.plotX
-                y: gridLines.plotY
-                width: gridLines.plotW
-                height: gridLines.plotH
+                anchors.fill: parent
                 clip: true
 
                 readonly property real dbVisibleSpan: filterCurveEq.dbMax - filterCurveEq.dbMin
@@ -170,103 +287,6 @@ BuiltinEffectBase {
                         }
                     }
                 }
-            }
-        }
-
-        Row {
-            id: buttonsRow
-
-            spacing: 8
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 16
-
-            FlatButton {
-                id: zoomOutButton
-
-                width: 28
-                height: 28
-
-                navigation.panel: root.buttonsNavigationPanel
-                navigation.order: 0
-
-                text: "-"
-                enabled: filterCurveEq.canZoomOut
-
-                onClicked: filterCurveEq.zoomOut()
-            }
-
-            FlatButton {
-                id: zoomInButton
-
-                width: 28
-                height: 28
-
-                navigation.panel: root.buttonsNavigationPanel
-                navigation.order: zoomOutButton.navigation.order + 1
-
-                text: "+"
-                enabled: filterCurveEq.canZoomIn
-
-                onClicked: filterCurveEq.zoomIn()
-            }
-
-            FlatButton {
-                id: flattenButton
-
-                width: 64
-                height: 28
-
-                navigation.panel: root.buttonsNavigationPanel
-                navigation.order: zoomInButton.navigation.order + 1
-
-                text: qsTrc("effects/filtercurveeq", "Flatten")
-
-                onClicked: filterCurveEq.curveModel.flatten()
-            }
-
-            FlatButton {
-                id: invertButton
-
-                width: 64
-                height: 28
-
-                navigation.panel: root.buttonsNavigationPanel
-                navigation.order: flattenButton.navigation.order + 1
-
-                text: qsTrc("effects/filtercurveeq", "Invert")
-
-                onClicked: filterCurveEq.curveModel.invert()
-            }
-
-            CheckBox {
-                id: linFreqScaleCheckBox
-
-                anchors.verticalCenter: parent.verticalCenter
-
-                navigation.panel: root.buttonsNavigationPanel
-                navigation.order: invertButton.navigation.order + 1
-
-                text: qsTrc("effects/filtercurveeq", "Linear Frequency Scale")
-
-                checked: filterCurveEq.linFreqScale
-
-                onClicked: filterCurveEq.linFreqScale = !filterCurveEq.linFreqScale
-            }
-
-            CheckBox {
-                id: showGridlinesCheckBox
-
-                anchors.verticalCenter: parent.verticalCenter
-
-                navigation.panel: root.buttonsNavigationPanel
-                navigation.order: linFreqScaleCheckBox.navigation.order + 1
-
-                text: qsTrc("effects/filtercurveeq", "Show grid lines")
-
-                checked: filterCurveEq.gridlinesVisible
-
-                onClicked: filterCurveEq.gridlinesVisible = !filterCurveEq.gridlinesVisible
             }
         }
     }

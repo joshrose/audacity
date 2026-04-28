@@ -20,14 +20,38 @@ Item {
     property int xTickPosition: GridPlot.Top
     property int yTickPosition: GridPlot.Right
 
+    // When true, the first/last tick labels along an axis are aligned to the
+    // edge of their grid line instead of being centered on it. Useful when the
+    // outer ticks correspond to the data range bounds (e.g. EQ frequency axis).
+    property bool alignEdgeLabels: false
+
+    // Read-only geometry of the plotting background, in root's coordinate
+    // space. Exposed so callers can align external items (e.g. toolbar
+    // controls) to the plot edges.
+    readonly property alias backgroundX: background.x
+    readonly property alias backgroundY: background.y
+    readonly property alias backgroundWidth: background.width
+    readonly property alias backgroundHeight: background.height
+
     QtObject {
         id: prv
 
         readonly property int tickLength: 4
-        readonly property int labelWidth: fontMetrics.boundingRect("-000").width
         readonly property int labelHeight: fontMetrics.boundingRect("0").height
         readonly property int labelMargin: 4
-        readonly property int extraLabelSpace: 8
+
+        function maxLabelWidth(ticks) {
+            var w = 0
+            for (var i = 0; i < ticks.length; ++i) {
+                var bw = fontMetrics.boundingRect(String(ticks[i])).width
+                if (bw > w)
+                    w = bw
+            }
+            return w
+        }
+
+        readonly property int xLabelMaxWidth: maxLabelWidth(root.xTicks)
+        readonly property int yLabelMaxWidth: maxLabelWidth(root.yTicks)
     }
 
     FontMetrics {
@@ -40,10 +64,10 @@ Item {
         id: background
 
         anchors.fill: parent
-        anchors.topMargin: root.xTickPosition === GridPlot.Top ? prv.labelHeight + prv.labelMargin : 0
-        anchors.bottomMargin: root.xTickPosition === GridPlot.Bottom ? prv.labelHeight + prv.labelMargin : 0
-        anchors.leftMargin: root.yTickPosition === GridPlot.Left ? prv.labelWidth + prv.labelMargin + prv.extraLabelSpace : 0
-        anchors.rightMargin: root.yTickPosition === GridPlot.Right ? prv.labelWidth + prv.labelMargin + prv.extraLabelSpace : 0
+        anchors.topMargin: root.xTickPosition === GridPlot.Top ? prv.tickLength + prv.labelMargin + prv.labelHeight : 0
+        anchors.bottomMargin: root.xTickPosition === GridPlot.Bottom ? prv.tickLength + prv.labelMargin + prv.labelHeight : 0
+        anchors.leftMargin: root.yTickPosition === GridPlot.Left ? prv.tickLength + prv.labelMargin + prv.yLabelMaxWidth : 0
+        anchors.rightMargin: root.yTickPosition === GridPlot.Right ? prv.tickLength + prv.labelMargin + prv.yLabelMaxWidth : 0
 
         color: ui.theme.extra["dynamics_background_color"]
 
@@ -56,11 +80,16 @@ Item {
                 y: root.xTickPosition === GridPlot.Top ? -prv.tickLength : 0
 
                 StyledTextLabel {
-                    width: prv.labelWidth
-                    height: prv.labelHeight
-                    horizontalAlignment: Text.AlignHCenter
+                    readonly property bool isFirst: root.alignEdgeLabels && index === 0
+                    readonly property bool isLast: root.alignEdgeLabels && index === root.xTicks.length - 1
 
-                    anchors.horizontalCenter: vLine.horizontalCenter
+                    width: prv.xLabelMaxWidth
+                    height: prv.labelHeight
+                    horizontalAlignment: isFirst ? Text.AlignLeft : isLast ? Text.AlignRight : Text.AlignHCenter
+
+                    anchors.horizontalCenter: !isFirst && !isLast ? vLine.horizontalCenter : undefined
+                    anchors.left: isFirst ? vLine.left : undefined
+                    anchors.right: isLast ? vLine.right : undefined
                     anchors.bottom: root.xTickPosition === GridPlot.Top ? vLine.top : undefined
                     anchors.top: root.xTickPosition === GridPlot.Bottom ? vLine.bottom : undefined
                     anchors.bottomMargin: root.xTickPosition === GridPlot.Top ? prv.labelMargin : undefined
@@ -87,14 +116,17 @@ Item {
                 y: background.height * (1 - index / (root.yTicks.length - 1))
 
                 StyledTextLabel {
-                    width: prv.labelWidth
+                    readonly property bool isBottom: root.alignEdgeLabels && index === 0
+                    readonly property bool isTop: root.alignEdgeLabels && index === root.yTicks.length - 1
+
+                    width: prv.yLabelMaxWidth
                     height: prv.labelHeight
                     horizontalAlignment: Text.AlignRight
-                    anchors.left: root.xTickPosition === GridPlot.Top ? hLine.right : undefined
-                    anchors.right: root.xTickPosition === GridPlot.Bottom ? hLine.left : undefined
-                    anchors.leftMargin: root.xTickPosition === GridPlot.Top ? prv.labelMargin : undefined
-                    anchors.rightMargin: root.xTickPosition === GridPlot.Bottom ? prv.labelMargin : undefined
-                    y: hLine.y - (fontMetrics.ascent + fontMetrics.descent) / 2
+                    anchors.left: root.yTickPosition === GridPlot.Right ? hLine.right : undefined
+                    anchors.right: root.yTickPosition === GridPlot.Left ? hLine.left : undefined
+                    anchors.leftMargin: root.yTickPosition === GridPlot.Right ? prv.labelMargin : undefined
+                    anchors.rightMargin: root.yTickPosition === GridPlot.Left ? prv.labelMargin : undefined
+                    y: isTop ? hLine.y : isBottom ? hLine.y - prv.labelHeight + 1 : hLine.y - (fontMetrics.ascent + fontMetrics.descent) / 2
                     text: modelData
                 }
 
