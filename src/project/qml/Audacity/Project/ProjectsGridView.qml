@@ -162,8 +162,8 @@ Item {
                 isCreateNew: item.isCreateNew
                 isNoResultsFound: item.isNoResultsFound
                 isCloud: item.isCloud
-                cloudProjectId: item.itemId ?? 0
                 timeSinceModified: item.timeSinceModified ?? ""
+                contextMenuModel: item.contextMenuModel
 
                 onClicked: {
                     if (isCreateNew) {

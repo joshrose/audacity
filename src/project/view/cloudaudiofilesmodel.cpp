@@ -45,6 +45,7 @@ void CloudAudioFilesModel::reload()
 
     beginResetModel();
 
+    clearContextMenuModels();
     m_items.clear();
     m_totalItems = muse::nidx;
     m_desiredRowCount = 0;
@@ -137,6 +138,10 @@ void CloudAudioFilesModel::loadItemsIfNecessary()
                     obj[IS_CREATE_NEW_KEY] = false;
                     obj[IS_NO_RESULTS_FOUND_KEY] = false;
 
+                    const auto id = obj[CLOUD_ITEM_ID_KEY].toString();
+                    const auto slug = obj[SLUG_KEY].toString();
+                    obj[CONTEXT_MENU_MODEL_KEY] = QVariant::fromValue(new CloudAudioFileContextMenuModel(id, slug, this));
+
                     m_items.push_back(obj);
                 }
 
@@ -165,4 +170,12 @@ void CloudAudioFilesModel::loadItemsIfNecessary()
 bool CloudAudioFilesModel::needsLoading()
 {
     return hasMore() && static_cast<int>(m_items.size()) < m_desiredRowCount;
+}
+
+void CloudAudioFilesModel::clearContextMenuModels()
+{
+    for (QVariantMap& item : m_items) {
+        auto* model = item[CONTEXT_MENU_MODEL_KEY].value<CloudAudioFileContextMenuModel*>();
+        delete model;
+    }
 }

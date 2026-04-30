@@ -60,6 +60,7 @@ private:
 
     void loadItemsIfNecessary();
     bool needsLoading();
+    void clearContextMenuModels();
 
     State m_state = State::Fine;
     bool m_isWaitingForPromise = false;

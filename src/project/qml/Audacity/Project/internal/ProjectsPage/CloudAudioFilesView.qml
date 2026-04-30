@@ -310,8 +310,8 @@ ProjectsView {
                             radius: 2 + border.width
                         }
                     }
-                },
-                ProjectsListView.ColumnItem {
+                }
+                /*ProjectsListView.ColumnItem {
                     id: btnColumn
                     header: ""
 
@@ -343,7 +343,9 @@ ProjectsView {
                             }
                         }
                     }
-                }
+                } */
+
+
             ]
         }
     }

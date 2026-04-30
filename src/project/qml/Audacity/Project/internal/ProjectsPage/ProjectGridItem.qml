@@ -38,11 +38,18 @@ FocusScope {
     property bool isCreateNew: false
     property bool isNoResultsFound: false
     property bool isCloud: false
-    property int cloudProjectId: 0
+
+    property var contextMenuModel: null
 
     property alias navigation: navCtrl
 
     signal clicked
+
+    Component.onCompleted: {
+        if (root.contextMenuModel != null) {
+            root.contextMenuModel.load()
+        }
+    }
 
     NavigationControl {
         id: navCtrl
@@ -172,7 +179,7 @@ FocusScope {
             }
 
             Loader {
-                active: root.isCloud
+                active: (root.contextMenuModel != null)
 
                 anchors.top: parent.top
                 anchors.topMargin: 8
@@ -180,10 +187,16 @@ FocusScope {
                 anchors.rightMargin: 8
 
                 sourceComponent: MenuButton {
-                    id: cloudMenuButton
+                    id: menuButton
 
                     width: 20
                     height: width
+
+                    menuModel: root.contextMenuModel
+
+                    onHandleMenuItem: function (itemId) {
+                        root.contextMenuModel.handleMenuItem(itemId)
+                    }
                 }
             }
 
