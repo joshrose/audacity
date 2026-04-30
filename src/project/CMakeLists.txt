@@ -100,6 +100,8 @@ set(MODULE_SRC
     ${CMAKE_CURRENT_LIST_DIR}/view/cloudprojectsyncmodel.h
     ${CMAKE_CURRENT_LIST_DIR}/view/cloudprojectsmodel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/view/cloudprojectsmodel.h
+    ${CMAKE_CURRENT_LIST_DIR}/view/cloudprojectcontextmenumodel.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/view/cloudprojectcontextmenumodel.h
     ${CMAKE_CURRENT_LIST_DIR}/view/cloudprojectstatuswatcher.cpp
     ${CMAKE_CURRENT_LIST_DIR}/view/cloudprojectstatuswatcher.h
     ${CMAKE_CURRENT_LIST_DIR}/view/projectthumbnailloader.cpp

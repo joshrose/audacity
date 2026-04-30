@@ -3,11 +3,12 @@
 */
 #include "cloudprojectsmodel.h"
 
-#include "framework/global/async/asyncable.h"
 #include "framework/global/dataformatter.h"
 #include "framework/global/types/datetime.h"
 
 #include "project/types/projecttypes.h"
+
+#include "view/cloudprojectcontextmenumodel.h"
 
 using namespace muse;
 using namespace au::project;
@@ -37,6 +38,7 @@ void CloudProjectsModel::reload()
 
     beginResetModel();
 
+    clearContextMenuModels();
     m_items.clear();
     m_totalItems = muse::nidx;
     m_desiredRowCount = 0;
@@ -129,6 +131,10 @@ void CloudProjectsModel::loadItemsIfNecessary()
                     obj[IS_CREATE_NEW_KEY] = false;
                     obj[IS_NO_RESULTS_FOUND_KEY] = false;
 
+                    const auto id = obj[CLOUD_ITEM_ID_KEY].toString();
+                    const auto slug = QString::fromStdString(item.slug);
+                    obj[CONTEXT_MENU_MODEL_KEY] = QVariant::fromValue(new CloudProjectContextMenuModel(id, slug, this));
+
                     m_items.push_back(obj);
                 }
 
@@ -157,4 +163,12 @@ void CloudProjectsModel::loadItemsIfNecessary()
 bool CloudProjectsModel::needsLoading()
 {
     return hasMore() && static_cast<int>(m_items.size()) < m_desiredRowCount;
+}
+
+void CloudProjectsModel::clearContextMenuModels()
+{
+    for (QVariantMap& item : m_items) {
+        auto* model = item[CONTEXT_MENU_MODEL_KEY].value<CloudProjectContextMenuModel*>();
+        delete model;
+    }
 }

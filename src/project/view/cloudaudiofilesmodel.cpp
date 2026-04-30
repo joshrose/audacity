@@ -3,9 +3,10 @@
 */
 #include "cloudaudiofilesmodel.h"
 
-#include "framework/global/async/asyncable.h"
 #include "framework/global/dataformatter.h"
 #include "framework/global/types/datetime.h"
+
+#include "view/cloudaudiofilecontextmenumodel.h"
 
 using namespace muse;
 using namespace au::project;
