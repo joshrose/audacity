@@ -315,12 +315,6 @@ ProjectsView {
                     id: btnColumn
                     header: ""
 
-                    Component.onCompleted: {
-                        if (item.contextMenuModel != null) {
-                            item.contextMenuModel.load()
-                        }
-                    }
-
                     width: function (parentWidth) {
                         let parentWidthExclusingSpacing = parentWidth - list.columns.length * list.view.columnSpacing
                         return 0.05 * parentWidthExclusingSpacing
@@ -338,6 +332,12 @@ ProjectsView {
 
                         onHandleMenuItem: function (itemId) {
                             item.contextMenuModel.handleMenuItem(itemId)
+                        }
+
+                        Component.onCompleted: {
+                            if (item.contextMenuModel != null) {
+                                item.contextMenuModel.load()
+                            }
                         }
                     }
                 }

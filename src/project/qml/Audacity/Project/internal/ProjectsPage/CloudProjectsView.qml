@@ -240,7 +240,7 @@ ProjectsView {
 
                     width: function (parentWidth) {
                         let parentWidthExclusingSpacing = parentWidth - list.columns.length * list.view.columnSpacing
-                        return 0.15 * parentWidthExclusingSpacing
+                        return 0.10 * parentWidthExclusingSpacing
                     }
 
                     delegate: StyledTextLabel {
@@ -269,6 +269,36 @@ ProjectsView {
 
                             anchors.margins: -radius
                             radius: 2 + border.width
+                        }
+                    }
+                },
+                ProjectsListView.ColumnItem {
+                    id: btnColumn
+                    header: ""
+
+                    width: function (parentWidth) {
+                        let parentWidthExclusingSpacing = parentWidth - list.columns.length * list.view.columnSpacing
+                        return 0.05 * parentWidthExclusingSpacing
+                    }
+
+                    delegate: MenuButton {
+                        id: menuButton
+
+                        width: 16
+                        height: 16
+
+                        visible: Boolean(item.contextMenuModel)
+
+                        menuModel: item.contextMenuModel
+
+                        onHandleMenuItem: function (itemId) {
+                            item.contextMenuModel.handleMenuItem(itemId)
+                        }
+
+                        Component.onCompleted: {
+                            if (item.contextMenuModel != null) {
+                                item.contextMenuModel.load()
+                            }
                         }
                     }
                 }
