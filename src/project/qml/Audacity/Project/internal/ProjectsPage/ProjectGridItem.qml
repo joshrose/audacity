@@ -37,9 +37,10 @@ FocusScope {
     property string placeholder: ""
     property bool isCreateNew: false
     property bool isNoResultsFound: false
-    property bool isCloud: false
 
     property var contextMenuModel: null
+    property bool showIndicator: false
+    property Component indicatorButton: null
 
     property alias navigation: navCtrl
 
@@ -201,23 +202,14 @@ FocusScope {
             }
 
             Loader {
-                active: root.isCloud
+                active: root.showIndicator && root.indicatorButton != null
 
                 anchors.right: parent.right
                 anchors.rightMargin: 8
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 8
 
-                sourceComponent: CloudProjectIndicatorButton {
-                    mouseArea.enabled: false
-
-                    isProgress: false //cloudProjectStatusWatcher.isProgress
-                    isDownloadedAndUpToDate: true //cloudProjectStatusWatcher.isDownloadedAndUpToDate
-
-                    navigation.panel: root.navigation.panel
-                    navigation.row: root.navigation.row
-                    navigation.column: root.navigation.column + 2
-                }
+                sourceComponent: root.indicatorButton
             }
         }
 

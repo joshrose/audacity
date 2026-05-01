@@ -40,6 +40,17 @@ ProjectsView {
     sourceComponent: root.viewType === ProjectsPageModel.List ? listComp : gridComp
 
     Component {
+        id: cloudIndicatorComp
+
+        CloudProjectIndicatorButton {
+            mouseArea.enabled: false
+
+            isProgress: false
+            isDownloadedAndUpToDate: true
+        }
+    }
+
+    Component {
         id: gridComp
 
         ProjectsGridView {
@@ -50,6 +61,8 @@ ProjectsView {
 
             backgroundColor: root.backgroundColor
             sideMargin: root.sideMargin
+
+            indicatorButton: cloudIndicatorComp
 
             navigation.section: root.navigationSection
             navigation.order: root.navigationOrder

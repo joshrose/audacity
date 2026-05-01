@@ -37,6 +37,7 @@ Item {
     property color backgroundColor: ui.theme.backgroundSecondaryColor
     property real sideMargin: 46
     property string placeholder: ""
+    property Component indicatorButton: null
 
     property alias view: view
 
@@ -161,9 +162,10 @@ Item {
                 thumbnailUrl: item.thumbnailUrl ?? ""
                 isCreateNew: item.isCreateNew
                 isNoResultsFound: item.isNoResultsFound
-                isCloud: item.isCloud
                 timeSinceModified: item.timeSinceModified ?? ""
                 contextMenuModel: item.contextMenuModel
+                showIndicator: item.showIndicator ?? false
+                indicatorButton: root.indicatorButton
 
                 onClicked: {
                     if (isCreateNew) {

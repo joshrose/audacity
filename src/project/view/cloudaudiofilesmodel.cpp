@@ -139,6 +139,7 @@ void CloudAudioFilesModel::loadItemsIfNecessary()
                         "hh:mm:ss") : QString();
                     obj[IS_CREATE_NEW_KEY] = false;
                     obj[IS_NO_RESULTS_FOUND_KEY] = false;
+                    obj[SHOW_INDICATOR_KEY] = false;
 
                     const auto id = obj[CLOUD_ITEM_ID_KEY].toString();
                     const auto slug = obj[SLUG_KEY].toString();

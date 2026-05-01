@@ -39,6 +39,7 @@ const QString AbstractItemModel::CLOUD_ITEM_ID_KEY("itemId");
 const QString AbstractItemModel::CLOUD_VISIBILITY_KEY("cloudVisibility");
 const QString AbstractItemModel::CLOUD_VIEW_COUNT_KEY("cloudViewCount");
 const QString AbstractItemModel::CONTEXT_MENU_MODEL_KEY("contextMenuModel");
+const QString AbstractItemModel::SHOW_INDICATOR_KEY("showIndicator");
 
 AbstractItemModel::AbstractItemModel(QObject* parent)
     : QAbstractListModel(parent)
