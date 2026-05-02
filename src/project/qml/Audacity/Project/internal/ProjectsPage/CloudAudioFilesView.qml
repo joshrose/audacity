@@ -203,7 +203,7 @@ ProjectsView {
 
                     width: function (parentWidth) {
                         let parentWidthExclusingSpacing = parentWidth - list.columns.length * list.view.columnSpacing
-                        return 0.10 * parentWidthExclusingSpacing
+                        return Math.max(0.10 * parentWidthExclusingSpacing, 100)
                     }
 
                     delegate: StyledTextLabel {
@@ -241,7 +241,7 @@ ProjectsView {
 
                     width: function (parentWidth) {
                         let parentWidthExclusingSpacing = parentWidth - list.columns.length * list.view.columnSpacing
-                        return 0.10 * parentWidthExclusingSpacing
+                        return Math.max(0.10 * parentWidthExclusingSpacing, 70)
                     }
 
                     delegate: StyledTextLabel {
@@ -279,7 +279,7 @@ ProjectsView {
 
                     width: function (parentWidth) {
                         let parentWidthExclusingSpacing = parentWidth - list.columns.length * list.view.columnSpacing
-                        return 0.10 * parentWidthExclusingSpacing
+                        return Math.max(0.05 * parentWidthExclusingSpacing, 50)
                     }
 
                     delegate: StyledTextLabel {
@@ -316,27 +316,33 @@ ProjectsView {
                     header: ""
 
                     width: function (parentWidth) {
-                        let parentWidthExclusingSpacing = parentWidth - list.columns.length * list.view.columnSpacing
-                        return 0.05 * parentWidthExclusingSpacing
+                        return 44
                     }
 
-                    delegate: MenuButton {
-                        id: menuButton
+                    delegate: Item {
+                        width: parent.width
+                        height: 48
 
-                        width: 16
-                        height: 16
+                        MenuButton {
+                            id: menuButton
 
-                        visible: Boolean(item.contextMenuModel)
+                            visible: Boolean(item.contextMenuModel)
 
-                        menuModel: item.contextMenuModel
+                            width: 28
+                            height: 28
 
-                        onHandleMenuItem: function (itemId) {
-                            item.contextMenuModel.handleMenuItem(itemId)
-                        }
+                            anchors.centerIn: parent
 
-                        Component.onCompleted: {
-                            if (item.contextMenuModel != null) {
-                                item.contextMenuModel.load()
+                            menuModel: item.contextMenuModel
+
+                            onHandleMenuItem: function (itemId) {
+                                item.contextMenuModel.handleMenuItem(itemId)
+                            }
+
+                            Component.onCompleted: {
+                                if (item.contextMenuModel != null) {
+                                    item.contextMenuModel.load()
+                                }
                             }
                         }
                     }
