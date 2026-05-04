@@ -48,8 +48,8 @@ PreferencesPage {
 
             visible: pluginPreferencesModel.lv2Supported
 
-            title: qsTrc("preferences", "LV2 plugins location")
-            dialogTitle: qsTrc("preferences", "Choose LV2 plugins location")
+            title: qsTrc("preferences", "Custom LV2 plugins location")
+            dialogTitle: qsTrc("preferences", "Choose custom LV2 plugins location")
 
             paths: pluginPreferencesModel.lv2CustomPaths
             pathValidator: function(p) { return pluginPreferencesModel.pathExists(p) }
@@ -77,8 +77,8 @@ PreferencesPage {
 
             visible: pluginPreferencesModel.vst3Supported
 
-            title: qsTrc("preferences", "VST3 plugins location")
-            dialogTitle: qsTrc("preferences", "Choose VST3 plugins location")
+            title: qsTrc("preferences", "Custom VST3 plugins location")
+            dialogTitle: qsTrc("preferences", "Choose custom VST3 plugins location")
 
             paths: pluginPreferencesModel.vst3CustomPaths
             pathValidator: function(p) { return pluginPreferencesModel.pathExists(p) }
