@@ -79,7 +79,7 @@ ProjectsView {
 
             readonly property int nameColumnWidth: 200
             readonly property int thumbnailColumnWidth: 200
-            readonly property int iconColumnWidth: 28
+            readonly property int iconColumnWidth: 48
             readonly property int modifiedColumnWidth: 100
             readonly property int sizeColumnWidth: 75
             readonly property int btnColumnWidth: 44

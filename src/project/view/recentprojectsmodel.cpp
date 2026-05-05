@@ -21,11 +21,11 @@
  */
 #include "recentprojectsmodel.h"
 
-#include "translation.h"
-#include "dataformatter.h"
-#include "io/fileinfo.h"
+#include "framework/global/translation.h"
+#include "framework/global/dataformatter.h"
+#include "framework/global/io/fileinfo.h"
 
-#include "log.h"
+#include "view/recentprojectcontextmenumodel.h"
 
 using namespace muse;
 using namespace au::project;
@@ -51,8 +51,17 @@ void RecentProjectsModel::setRecentProjects(const std::vector<QVariantMap>& item
     }
 
     beginResetModel();
+    clearContextMenuModels();
     m_items = items;
     endResetModel();
+}
+
+void RecentProjectsModel::clearContextMenuModels()
+{
+    for (QVariantMap& item : m_items) {
+        auto* model = item[CONTEXT_MENU_MODEL_KEY].value<RecentProjectContextMenuModel*>();
+        delete model;
+    }
 }
 
 void RecentProjectsModel::updateRecentProjects()
@@ -87,6 +96,9 @@ void RecentProjectsModel::updateRecentProjects()
         obj[TIME_SINCE_MODIFIED_KEY] = DataFormatter::formatTimeSince(io::FileInfo(file.path).lastModified().date()).toQString();
         obj[IS_CREATE_NEW_KEY] = false;
         obj[IS_NO_RESULTS_FOUND_KEY] = false;
+
+        obj[CONTEXT_MENU_MODEL_KEY] = QVariant::fromValue(
+            new RecentProjectContextMenuModel(file.path.toQString(), file.displayNameOverride, this));
 
         items.push_back(obj);
     }

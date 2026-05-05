@@ -92,6 +92,8 @@ set(MODULE_SRC
     ${CMAKE_CURRENT_LIST_DIR}/view/abstractitemmodel.h
     ${CMAKE_CURRENT_LIST_DIR}/view/recentprojectsmodel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/view/recentprojectsmodel.h
+    ${CMAKE_CURRENT_LIST_DIR}/view/recentprojectcontextmenumodel.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/view/recentprojectcontextmenumodel.h
     ${CMAKE_CURRENT_LIST_DIR}/view/cloudaudiofilesmodel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/view/cloudaudiofilesmodel.h
     ${CMAKE_CURRENT_LIST_DIR}/view/cloudaudiofilecontextmenumodel.cpp
