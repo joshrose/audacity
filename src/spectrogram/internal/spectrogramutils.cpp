@@ -2,7 +2,7 @@
  * Audacity: A Digital Audio Editor
  */
 #include "spectrogramutils.h"
-#include "internal/numberscale.h"
+#include "shared/axis/numberscale.h"
 #include "ispectrogramconfiguration.h"
 #include "spectrogramtypes.h"
 
