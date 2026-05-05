@@ -11,7 +11,7 @@ class CloudProjectContextMenuModel : public muse::uicomponents::AbstractMenuMode
     Q_OBJECT
 
 public:
-    CloudProjectContextMenuModel(QString projectId, QString slug, QObject* parent = nullptr);
+    CloudProjectContextMenuModel(QString projectId, QString slug, QString localPath, QString displayName, QObject* parent = nullptr);
 
     Q_INVOKABLE void load() override;
     void handleMenuItem(const QString& itemId) override;
@@ -19,5 +19,7 @@ public:
 private:
     QString m_projectId;
     QString m_slug;
+    QString m_localPath;
+    QString m_displayName;
 };
 }
