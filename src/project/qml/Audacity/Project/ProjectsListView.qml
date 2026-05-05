@@ -16,8 +16,7 @@ Item {
 
     property AbstractItemModel model
     property list<ColumnItem> columns
-    property bool showNewProjectItem: false
-    //property alias showNewProjectItem: newProjectItem.visible
+    property alias showNewProjectItem: newProjectItem.visible
     property string searchText
 
     property color backgroundColor: ui.theme.backgroundSecondaryColor
@@ -80,43 +79,62 @@ Item {
 
         spacing: 12
 
-        // ProjectListItem {
-        //     id: newProjectItem
+        ListItemBlank {
+            id: newProjectItem
 
-        //     Layout.fillWidth: true
-        //     Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-        //     implicitHeight: view.rowHeight
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+            implicitHeight: view.rowHeight
 
-        //     visible: false
-        //     itemInset: view.itemInset
-        //     showBottomBorder: false
+            visible: false
 
-        //     thumbnailFull: root.thumbnailFull
+            navigation.panel: navPanel
+            navigation.row: 0
+            navigation.column: 0
 
-        //     navigation.panel: navPanel
-        //     navigation.row: 0
-        //     navigation.column: 0
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: view.itemInset
+                anchors.rightMargin: view.itemInset
 
-        //     item: {
-        //         "name": qsTrc("project", "New project")
-        //     }
+                spacing: view.columnSpacing
 
-        //     thumbnailComponent: Rectangle {
-        //         anchors.fill: parent
-        //         color: ui.theme.extra["white_color"]
+                StyledTextLabel {
+                    id: projectName
 
-        //         StyledIconLabel {
-        //             anchors.centerIn: parent
+                    Layout.preferredWidth: 200
 
-        //             iconCode: IconCode.PLUS
+                    text: qsTrc("project", "New project")
+                    font: ui.theme.largeBodyFont
+                    horizontalAlignment: Text.AlignLeft
+                }
 
-        //             font.pixelSize: 16
-        //             color: ui.theme.extra["black_color"]
-        //         }
-        //     }
+                Rectangle {
+                    Layout.preferredWidth: 90
+                    Layout.preferredHeight: 48
 
-        //     onClicked: root.createNewProjectRequested()
-        // }
+                    color: ui.theme.extra["white_color"]
+
+                    StyledIconLabel {
+                        anchors.centerIn: parent
+
+                        iconCode: IconCode.PLUS
+
+                        font.pixelSize: 16
+                        color: ui.theme.extra["black_color"]
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: root.createNewProjectRequested()
+                    }
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                }
+            }
+        }
 
         Item {
             id: listViewContainer
