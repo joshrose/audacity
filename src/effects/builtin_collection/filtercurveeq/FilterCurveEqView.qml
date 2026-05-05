@@ -42,7 +42,7 @@ BuiltinEffectBase {
             Row {
                 id: leftGroup
 
-                spacing: 8
+                spacing: 16
                 topPadding: 6
                 bottomPadding: 6
 

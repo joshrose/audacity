@@ -9,7 +9,12 @@ declare_module(shared)
 
 set(MODULE_SRC
     ${CMAKE_CURRENT_LIST_DIR}/axis/axisscale.h
+    ${CMAKE_CURRENT_LIST_DIR}/axis/axistypes.h
     ${CMAKE_CURRENT_LIST_DIR}/axis/numberscale.h
+    ${CMAKE_CURRENT_LIST_DIR}/axis/axisticks.h
+    ${CMAKE_CURRENT_LIST_DIR}/axis/axisticks.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/axis/axislabel.h
+    ${CMAKE_CURRENT_LIST_DIR}/axis/axislabel.cpp
 )
 
 setup_module()
