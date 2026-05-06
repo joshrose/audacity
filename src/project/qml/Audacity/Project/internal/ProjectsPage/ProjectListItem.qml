@@ -46,7 +46,6 @@ ListItemBlank {
             active: columnData !== null
 
             Layout.preferredWidth: columnData ? columnData.width : 0
-            Layout.preferredHeight: parent.height
 
             readonly property ProjectListItem listItem: root
             readonly property var item: root.item
@@ -79,7 +78,6 @@ ListItemBlank {
                     delegate: Loader {
                         readonly property var columnData: root.columns[model.index + 1]
 
-                        Layout.preferredHeight: parent.height
                         Layout.preferredWidth: columnData.width
                         Layout.minimumWidth: columnData.width
                         Layout.fillWidth: columnData.fillWidth

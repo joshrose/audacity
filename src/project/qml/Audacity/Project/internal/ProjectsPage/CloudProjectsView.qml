@@ -221,12 +221,29 @@ ProjectsView {
                     width: nameColumnWidth
 
                     delegate: StyledTextLabel {
-                        height: 48
-                        width: parent.width
+                        id: nameLabel
 
                         text: item.name ?? ""
                         font: ui.theme.largeBodyFont
                         horizontalAlignment: Text.AlignLeft
+
+                        NavigationFocusBorder {
+                            navigationCtrl: NavigationControl {
+                                name: "NameLabel"
+                                panel: navigationPanel
+                                row: navigationRow
+                                column: navigationColumnStart
+                                enabled: nameLabel.visible && nameLabel.enabled && !nameLabel.isEmpty
+                                accessible.name: nameColumn.header + ": " + nameLabel.text
+                                accessible.role: MUAccessible.StaticText
+
+                                onActiveChanged: {
+                                    if (active) {
+                                        listItem.scrollIntoView()
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 ProjectsListView.ColumnItem {
@@ -278,6 +295,24 @@ ProjectsView {
 
                             isProgress: false
                             isDownloadedAndUpToDate: true
+
+                            NavigationFocusBorder {
+                                navigationCtrl: NavigationControl {
+                                    name: "CloudIndicator"
+                                    panel: navigationPanel
+                                    row: navigationRow
+                                    column: navigationColumnStart
+                                    enabled: isCloud
+                                    accessible.name: qsTrc("project", "Cloud project indicator")
+                                    accessible.role: MUAccessible.Information
+
+                                    onActiveChanged: {
+                                        if (active) {
+                                            listItem.scrollIntoView()
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 },
@@ -362,7 +397,7 @@ ProjectsView {
 
                     delegate: Item {
                         width: parent.width
-                        height: 48
+                        height: 28
 
                         MenuButton {
                             id: menuButton
@@ -383,6 +418,28 @@ ProjectsView {
                             Component.onCompleted: {
                                 if (item.contextMenuModel != null) {
                                     item.contextMenuModel.load()
+                                }
+                            }
+
+                            NavigationFocusBorder {
+                                navigationCtrl: NavigationControl {
+                                    name: "MenuButton"
+                                    panel: navigationPanel
+                                    row: navigationRow
+                                    column: navigationColumnStart
+                                    enabled: menuButton.visible && menuButton.enabled
+                                    accessible.name: qsTrc("project", "Project item menu")
+                                    accessible.role: MUAccessible.Button
+
+                                    onActiveChanged: {
+                                        if (active) {
+                                            listItem.scrollIntoView()
+                                        }
+                                    }
+
+                                    onTriggered: {
+                                        menuButton.clicked(null)
+                                    }
                                 }
                             }
                         }

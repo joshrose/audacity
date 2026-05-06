@@ -194,7 +194,7 @@ Item {
 
                                     Layout.preferredWidth: columnData.width
                                     Layout.minimumWidth: columnData.width
-                                    Layout.preferredHeight: parent.height
+                                    //Layout.preferredHeight: parent.height
                                     Layout.fillWidth: columnData.fillWidth
 
                                     sourceComponent: headerLabelComp
