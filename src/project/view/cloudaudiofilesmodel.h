@@ -12,6 +12,7 @@
 #include "au3cloud/iau3audiocomservice.h"
 #include "framework/global/io/ifilesystem.h"
 #include "framework/interactive/iinteractive.h"
+#include <qtmetamacros.h>
 
 namespace au::project {
 class CloudAudioFilesModel : public AbstractItemModel, public muse::async::Asyncable, public muse::Contextable
@@ -41,6 +42,7 @@ public:
 
     void load() override;
     Q_INVOKABLE void reload();
+    Q_INVOKABLE void clear();
 
     State state() const;
     bool hasMore() const;

@@ -302,7 +302,7 @@ ProjectsView {
                                     panel: navigationPanel
                                     row: navigationRow
                                     column: navigationColumnStart
-                                    enabled: isCloud
+                                    enabled: true
                                     accessible.name: qsTrc("project", "Cloud project indicator")
                                     accessible.role: MUAccessible.Information
 

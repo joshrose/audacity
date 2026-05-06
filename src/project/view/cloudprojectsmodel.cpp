@@ -32,6 +32,12 @@ void CloudProjectsModel::load()
 
 void CloudProjectsModel::reload()
 {
+    clear();
+    setState(State::Loading);
+}
+
+void CloudProjectsModel::clear()
+{
     audioComService()->clearProjectListCache();
     m_isWaitingForPromise = false;
     ++m_reloadGeneration;
@@ -48,7 +54,7 @@ void CloudProjectsModel::reload()
     emit hasMoreChanged();
     emit desiredRowCountChanged();
 
-    setState(State::Loading);
+    setState(State::Fine);
 }
 
 CloudProjectsModel::State CloudProjectsModel::state() const

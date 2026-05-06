@@ -41,6 +41,12 @@ void CloudAudioFilesModel::load()
 
 void CloudAudioFilesModel::reload()
 {
+    clear();
+    setState(State::Loading);
+}
+
+void CloudAudioFilesModel::clear()
+{
     audioComService()->clearAudioListCache();
     m_isWaitingForPromise = false;
     ++m_reloadGeneration;
@@ -57,7 +63,7 @@ void CloudAudioFilesModel::reload()
     emit hasMoreChanged();
     emit desiredRowCountChanged();
 
-    setState(State::Loading);
+    setState(State::Fine);
 }
 
 CloudAudioFilesModel::State CloudAudioFilesModel::state() const
