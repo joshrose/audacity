@@ -173,6 +173,12 @@ Item {
                         readonly property string headerText: columnData ? columnData.header : ""
                     }
 
+                    SeparatorLine {
+                        orientation: Qt.Vertical
+                        Layout.preferredHeight: 44
+                        Layout.maximumHeight: 44
+                    }
+
                     Item {
                         Layout.fillWidth: true
                         Layout.preferredHeight: parent.height

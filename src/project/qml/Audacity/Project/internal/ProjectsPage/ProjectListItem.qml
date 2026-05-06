@@ -56,6 +56,10 @@ ListItemBlank {
             sourceComponent: columnData ? columnData.delegate : null
         }
 
+        SeparatorLine {
+            orientation: Qt.Vertical
+        }
+
         // Remaining columns — clipped container
         Item {
             Layout.preferredHeight: parent.height
