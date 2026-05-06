@@ -7,6 +7,9 @@ Item {
 
     default property alias content: contentSlot.data
 
+    // xTicks / yTicks: arrays of { label: string, position: number } objects,
+    // where position is a fraction in [0, 1] along the axis. For x: 0 = left,
+    // 1 = right. For y: 0 = bottom, 1 = top.
     required property var xTicks
     required property var yTicks
 
@@ -43,7 +46,7 @@ Item {
         function maxLabelWidth(ticks) {
             var w = 0
             for (var i = 0; i < ticks.length; ++i) {
-                var bw = fontMetrics.boundingRect(String(ticks[i])).width
+                var bw = fontMetrics.boundingRect(ticks[i].label).width
                 if (bw > w)
                     w = bw
             }
@@ -76,7 +79,7 @@ Item {
 
             model: root.xTicks
             delegate: Item {
-                x: background.width * index / (root.xTicks.length - 1)
+                x: background.width * modelData.position
                 y: root.xTickPosition === GridPlot.Top ? -prv.tickLength : 0
 
                 StyledTextLabel {
@@ -95,7 +98,7 @@ Item {
                     anchors.bottomMargin: root.xTickPosition === GridPlot.Top ? prv.labelMargin : undefined
                     anchors.topMargin: root.xTickPosition === GridPlot.Bottom ? prv.labelMargin : undefined
 
-                    text: modelData
+                    text: modelData.label
                 }
 
                 Rectangle {
@@ -113,7 +116,7 @@ Item {
             model: root.yTicks
             delegate: Item {
                 x: root.yTickPosition === GridPlot.Right ? 0 : -prv.tickLength
-                y: background.height * (1 - index / (root.yTicks.length - 1))
+                y: background.height * (1 - modelData.position)
 
                 StyledTextLabel {
                     readonly property bool isBottom: root.alignEdgeLabels && index === 0
@@ -127,7 +130,7 @@ Item {
                     anchors.leftMargin: root.yTickPosition === GridPlot.Right ? prv.labelMargin : undefined
                     anchors.rightMargin: root.yTickPosition === GridPlot.Left ? prv.labelMargin : undefined
                     y: isTop ? hLine.y : isBottom ? hLine.y - prv.labelHeight + 1 : hLine.y - (fontMetrics.ascent + fontMetrics.descent) / 2
-                    text: modelData
+                    text: modelData.label
                 }
 
                 Rectangle {

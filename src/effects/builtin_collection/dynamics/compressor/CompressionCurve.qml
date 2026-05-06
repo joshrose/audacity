@@ -18,9 +18,13 @@ GridPlot {
         readonly property int max: 0
         readonly property int step: 6
         readonly property var ticks: (function () {
-                var result = []
-                for (var i = prv.min; i <= prv.max; i += prv.step) {
-                    result.push(i)
+                const result = []
+                const span = prv.max - prv.min
+                for (let i = prv.min; i <= prv.max; i += prv.step) {
+                    result.push({
+                        label: String(i),
+                        position: (i - prv.min) / span
+                    })
                 }
                 return result
             })()

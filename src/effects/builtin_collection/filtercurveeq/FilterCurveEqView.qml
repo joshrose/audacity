@@ -164,17 +164,29 @@ BuiltinEffectBase {
             alignEdgeLabels: true
 
             xTicks: (function () {
-                    var result = []
-                    for (var i = filterCurveEq.loFreq; i <= filterCurveEq.hiFreq; i += 5000) {
-                        result.push(i)
+                    const result = []
+                    const span = filterCurveEq.hiFreq - filterCurveEq.loFreq
+                    if (span <= 0)
+                        return result
+                    for (let i = filterCurveEq.loFreq; i <= filterCurveEq.hiFreq; i += 5000) {
+                        result.push({
+                            label: String(i),
+                            position: (i - filterCurveEq.loFreq) / span
+                        })
                     }
                     return result
                 })()
 
             yTicks: (function () {
-                    var result = []
-                    for (var i = filterCurveEq.dbMin; i <= filterCurveEq.dbMax; i += 6) {
-                        result.push(i)
+                    const result = []
+                    const span = filterCurveEq.dbMax - filterCurveEq.dbMin
+                    if (span <= 0)
+                        return result
+                    for (let i = filterCurveEq.dbMin; i <= filterCurveEq.dbMax; i += 6) {
+                        result.push({
+                            label: String(i),
+                            position: (i - filterCurveEq.dbMin) / span
+                        })
                     }
                     return result
                 })()
