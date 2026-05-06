@@ -24,7 +24,7 @@ BaseSection {
 
     Column {
         width: parent.width
-        spacing: root.rowSpacing
+        spacing: 8
 
         Repeater {
             model: root.paths
@@ -39,7 +39,7 @@ BaseSection {
 
                 RowLayout {
                     width: parent.width
-                    spacing: 8
+                    spacing: 4
 
                     FilePicker {
                         Layout.fillWidth: true
@@ -83,8 +83,7 @@ BaseSection {
                     leftPadding: 12
                     horizontalAlignment: Text.AlignLeft
 
-                    // Always laid out so the row height stays stable; only the text fades in/out
-                    opacity: pathInvalid ? 1 : 0
+                    visible: pathInvalid
                     Accessible.ignored: !pathInvalid
 
                     text: qsTrc("preferences", "The directory does not exist")
