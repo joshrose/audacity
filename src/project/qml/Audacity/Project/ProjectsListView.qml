@@ -283,6 +283,7 @@ Item {
                         columns: root.columns
                         columnsContentX: root._columnsContentX
                         columnsMinWidth: root._remainingColumnsMinWidth
+                        showBottomBorder: index < view.count - 1
 
                         itemInset: view.itemInset
                         implicitHeight: view.rowHeight
