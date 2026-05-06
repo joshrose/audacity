@@ -7,6 +7,8 @@
 
 #include "filtercurvemodel.h"
 
+#include <QVariantList>
+
 namespace au::effects {
 class FilterCurveEq;
 
@@ -24,6 +26,9 @@ class FilterCurveEqViewModel : public BuiltinEffectModel
     Q_PROPERTY(bool canZoomIn READ canZoomIn NOTIFY dbRangeChanged FINAL)
     Q_PROPERTY(bool canZoomOut READ canZoomOut NOTIFY dbRangeChanged FINAL)
     Q_PROPERTY(bool linFreqScale READ linFreqScale WRITE setLinFreqScale NOTIFY linFreqScaleChanged FINAL)
+    Q_PROPERTY(int labelWidth READ labelWidth WRITE setLabelWidth NOTIFY labelWidthChanged FINAL)
+    Q_PROPERTY(double axisWidth READ axisWidth WRITE setAxisWidth NOTIFY axisWidthChanged FINAL)
+    Q_PROPERTY(QVariantList xTicks READ xTicks NOTIFY xTicksChanged FINAL)
 
 public:
     FilterCurveEqViewModel(QObject* parent, int instanceId);
@@ -42,6 +47,12 @@ public:
     bool linFreqScale() const;
     void setLinFreqScale(bool);
 
+    int labelWidth() const { return m_labelWidth; }
+    void setLabelWidth(int);
+    double axisWidth() const { return m_axisWidth; }
+    void setAxisWidth(double);
+    QVariantList xTicks() const;
+
     Q_INVOKABLE void zoomIn();
     Q_INVOKABLE void zoomOut();
 
@@ -51,11 +62,16 @@ signals:
     void gridlinesVisibleChanged();
     void dbRangeChanged();
     void linFreqScaleChanged();
+    void labelWidthChanged();
+    void axisWidthChanged();
+    void xTicksChanged();
 
 private:
     void doReload() override;
 
     FilterCurveModel* const m_curveModel;
+    int m_labelWidth = 0;
+    double m_axisWidth = 0.;
 };
 
 class FilterCurveEqViewModelFactory : public EffectViewModelFactory<FilterCurveEqViewModel>

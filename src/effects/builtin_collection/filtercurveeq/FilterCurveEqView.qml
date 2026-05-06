@@ -163,19 +163,27 @@ BuiltinEffectBase {
 
             alignEdgeLabels: true
 
-            xTicks: (function () {
-                    const result = []
-                    const span = filterCurveEq.hiFreq - filterCurveEq.loFreq
-                    if (span <= 0)
-                        return result
-                    for (let i = filterCurveEq.loFreq; i <= filterCurveEq.hiFreq; i += 5000) {
-                        result.push({
-                            label: String(i),
-                            position: (i - filterCurveEq.loFreq) / span
-                        })
-                    }
-                    return result
-                })()
+            xTicks: filterCurveEq.xTicks
+
+            // Feed the model the dimensions it needs to prune overlapping
+            // ticks. labelWidth is a conservative estimate based on a
+            // representative wide label (e.g. "10.5k"); axisWidth tracks the
+            // plot background.
+            FontMetrics {
+                id: labelFm
+                font.family: ui.theme.bodyFont.family
+                font.pixelSize: ui.theme.bodyFont.pixelSize
+            }
+            Binding {
+                target: filterCurveEq
+                property: "labelWidth"
+                value: labelFm.boundingRect("10.5k").width
+            }
+            Binding {
+                target: filterCurveEq
+                property: "axisWidth"
+                value: gridPlot.backgroundWidth
+            }
 
             yTicks: (function () {
                     const result = []
