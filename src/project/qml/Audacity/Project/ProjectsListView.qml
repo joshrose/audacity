@@ -118,7 +118,7 @@ Item {
                 StyledTextLabel {
                     id: projectName
 
-                    Layout.preferredWidth: 200
+                    Layout.preferredWidth: 100
 
                     text: qsTrc("project", "New project")
                     font: ui.theme.largeBodyFont
