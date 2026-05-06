@@ -261,7 +261,7 @@ PluginPaths LV2EffectsModule::FindModulePaths(PluginManagerInterface&,
             constexpr size_t kMaxProgressLen = 60;
             wxString uriDisplay = wxString::FromUTF8(pluginUri);
             if (uriDisplay.length() > kMaxProgressLen) {
-                uriDisplay = uriDisplay.Left(kMaxProgressLen - 1) + wxT("\u2026");
+                uriDisplay = wxT("\u2026") + uriDisplay.Mid(uriDisplay.length() - (kMaxProgressLen - 1));
             }
             const auto result = progress->Poll(visited, total,
                                                XO("Looking in: %s").Format(uriDisplay));

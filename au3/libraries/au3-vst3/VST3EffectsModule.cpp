@@ -49,7 +49,7 @@ wxString elidePath(const wxString& path)
     if (path.length() <= kMaxProgressPathLen) {
         return path;
     }
-    return path.Left(kMaxProgressPathLen - 1) + wxT("\u2026");
+    return wxT("\u2026") + path.Mid(path.length() - (kMaxProgressPathLen - 1));
 }
 }
 
