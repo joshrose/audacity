@@ -47,7 +47,7 @@ Rectangle {
         readonly property int borderRadius: 4
 
         readonly property int dialogWidth: 640
-        readonly property int maxDialogHeight: 340 // real ~444px with system bar on Mac
+        readonly property int maxDialogHeight: 348 // real ~452px with system bar on Mac
         readonly property int maxContentWidth: 580
     }
 
