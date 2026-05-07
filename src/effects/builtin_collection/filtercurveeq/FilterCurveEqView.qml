@@ -164,6 +164,7 @@ BuiltinEffectBase {
             alignEdgeLabels: true
 
             xTicks: filterCurveEq.xTicks
+            showGrid: filterCurveEq.gridlinesVisible
 
             // Feed the model the dimensions it needs to prune overlapping
             // ticks. labelWidth is a conservative estimate based on a

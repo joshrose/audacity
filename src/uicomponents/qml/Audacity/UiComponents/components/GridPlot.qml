@@ -6,6 +6,7 @@ Item {
     id: root
 
     default property alias content: contentSlot.data
+    property bool showGrid: true
 
     // xTicks / yTicks: arrays of { label: string, position: number } objects,
     // where position is a fraction in [0, 1] along the axis. For x: 0 = left,
@@ -141,6 +142,12 @@ Item {
                     color: ui.theme.extra["dynamics_grid_color"]
                 }
             }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: background.color
+            visible: !root.showGrid
         }
 
         Item {
