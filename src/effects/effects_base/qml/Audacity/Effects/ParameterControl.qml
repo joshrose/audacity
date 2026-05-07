@@ -41,6 +41,12 @@ Item {
         readonly property int numericControlWidth: 100
         readonly property int compactInputWidth: 80
         readonly property int valueDisplayWidth: 160
+        readonly property int descriptionMaxWidth: 200
+        readonly property int sliderMaxWidth: 280
+        readonly property int sliderShortMaxWidth: 200
+        readonly property int dropdownMaxWidth: 260
+        readonly property int textControlWidth: 240
+        readonly property int filePickerWidth: 320
     }
 
     RowLayout {
@@ -64,7 +70,6 @@ Item {
         // Control loader - loads different controls based on parameter type
         Loader {
             id: controlLoader
-            Layout.fillWidth: true
             Layout.alignment: Qt.AlignVCenter
 
             sourceComponent: {
@@ -93,6 +98,25 @@ Item {
                     return unknownControl
                 }
             }
+        }
+
+        // Optional human-readable hint, shared across all control types.
+        // Capped width with word-wrap so long Nyquist labels stay readable.
+        StyledTextLabel {
+            id: descriptionLabel
+            Layout.alignment: Qt.AlignVCenter
+            Layout.maximumWidth: prv.descriptionMaxWidth
+            text: parameterData ? parameterData.description : ""
+            visible: text.length > 0
+            horizontalAlignment: Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
+            wrapMode: Text.WordWrap
+        }
+
+        // Trailing fillWidth filler so the loader + description sit at their
+        // content widths (left side of the row) rather than spreading out.
+        Item {
+            Layout.fillWidth: true
         }
     }
 
@@ -126,7 +150,7 @@ Item {
 
             StyledDropdown {
                 id: dropdown
-                Layout.preferredWidth: prv.controlWidth
+                Layout.maximumWidth: prv.dropdownMaxWidth
                 Layout.alignment: Qt.AlignVCenter
 
                 currentIndex: parameterData ? parameterData.currentEnumIndex : 0
@@ -159,15 +183,6 @@ Item {
                     root.gestureEnded(root.parameterId)
                 }
             }
-
-            StyledTextLabel {
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignVCenter
-                text: parameterData ? parameterData.units : ""
-                visible: parameterData && parameterData.units && parameterData.units.length > 0
-                horizontalAlignment: Text.AlignLeft
-                elide: Text.ElideRight
-            }
         }
     }
 
@@ -180,7 +195,10 @@ Item {
 
             StyledSlider {
                 id: slider
-                Layout.preferredWidth: prv.controlWidth
+                // Tighten the slider when there's a description label so the
+                // hint text has room and doesn't get pushed off the row.
+                Layout.preferredWidth: descriptionLabel.visible ? prv.sliderShortMaxWidth : prv.sliderMaxWidth
+                Layout.minimumWidth: prv.controlWidth
                 Layout.alignment: Qt.AlignVCenter
 
                 from: parameterData ? parameterData.minValue : 0
@@ -204,57 +222,16 @@ Item {
                 }
             }
 
-            IncrementalPropertyControl {
-                id: sliderInput
+            GeneratedIncrementalPropertyControl {
                 Layout.preferredWidth: prv.compactInputWidth
                 Layout.alignment: Qt.AlignVCenter
+                parameterData: root.parameterData
 
-                currentValue: parameterData ? parameterData.currentValue : 0
-                minValue: parameterData ? parameterData.minValue : 0
-                maxValue: parameterData ? parameterData.maxValue : 1
-                step: parameterData && parameterData.stepSize > 0 ? parameterData.stepSize : 0.01
-                decimals: parameterData && parameterData.isInteger ? 0 : 2
-                measureUnitsSymbol: ""
-                enabled: parameterData ? !parameterData.isReadOnly : false
-
-                // Track editing state for gesture
-                property bool isEditing: false
-
-                // Handle focus changes for gesture tracking
-                onActiveFocusChanged: {
-                    if (activeFocus && !isEditing) {
-                        isEditing = true
-                        root.gestureStarted(root.parameterId)
-                    } else if (!activeFocus && isEditing) {
-                        isEditing = false
-                        root.gestureEnded(root.parameterId)
-                    }
+                onGestureStarted: root.gestureStarted(root.parameterId)
+                onGestureEnded: root.gestureEnded(root.parameterId)
+                onValueCommitted: function (v) {
+                    root.valueChanged(root.parameterId, v)
                 }
-
-                onValueEdited: function (newValue) {
-                    // If not already editing (e.g., increment/decrement button without focus), start gesture
-                    if (!isEditing) {
-                        isEditing = true
-                        root.gestureStarted(root.parameterId)
-                    }
-
-                    root.valueChanged(root.parameterId, newValue);
-
-                    // For button clicks without focus, end gesture immediately
-                    if (!activeFocus && isEditing) {
-                        isEditing = false
-                        root.gestureEnded(root.parameterId)
-                    }
-                }
-            }
-
-            StyledTextLabel {
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignVCenter
-                text: parameterData ? parameterData.units : ""
-                visible: parameterData && parameterData.units && parameterData.units.length > 0
-                horizontalAlignment: Text.AlignLeft
-                elide: Text.ElideRight
             }
         }
     }
@@ -266,59 +243,16 @@ Item {
         RowLayout {
             spacing: prv.spaceL
 
-            IncrementalPropertyControl {
-                id: numericInput
+            GeneratedIncrementalPropertyControl {
                 Layout.preferredWidth: prv.numericControlWidth
                 Layout.alignment: Qt.AlignVCenter
+                parameterData: root.parameterData
 
-                currentValue: parameterData ? parameterData.currentValue : 0
-                minValue: parameterData ? parameterData.minValue : 0
-                maxValue: parameterData ? parameterData.maxValue : 1
-                step: parameterData && parameterData.stepSize > 0 ? parameterData.stepSize : 0.01
-                decimals: parameterData && parameterData.isInteger ? 0 : 2
-                measureUnitsSymbol: ""
-                enabled: parameterData ? !parameterData.isReadOnly : false
-
-                // Track editing state for gesture
-                property bool isEditing: false
-
-                // Handle focus changes for gesture tracking
-                onActiveFocusChanged: {
-                    if (activeFocus && !isEditing) {
-                        // User focused the control - begin gesture
-                        isEditing = true
-                        root.gestureStarted(root.parameterId)
-                    } else if (!activeFocus && isEditing) {
-                        // User left the control - end gesture
-                        isEditing = false
-                        root.gestureEnded(root.parameterId)
-                    }
+                onGestureStarted: root.gestureStarted(root.parameterId)
+                onGestureEnded: root.gestureEnded(root.parameterId)
+                onValueCommitted: function (v) {
+                    root.valueChanged(root.parameterId, v)
                 }
-
-                onValueEdited: function (newValue) {
-                    // If not already editing (e.g., increment/decrement button without focus), start gesture
-                    if (!isEditing) {
-                        isEditing = true
-                        root.gestureStarted(root.parameterId)
-                    }
-
-                    root.valueChanged(root.parameterId, newValue);
-
-                    // For button clicks without focus, end gesture immediately
-                    if (!activeFocus && isEditing) {
-                        isEditing = false
-                        root.gestureEnded(root.parameterId)
-                    }
-                }
-            }
-
-            StyledTextLabel {
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignVCenter
-                text: parameterData ? parameterData.units : ""
-                visible: parameterData && parameterData.units && parameterData.units.length > 0
-                horizontalAlignment: Text.AlignLeft
-                elide: Text.ElideRight
             }
         }
     }
@@ -327,8 +261,12 @@ Item {
     Component {
         id: timeControl
 
+        // Wrapper RowLayout + fillWidth filler so Timecode (NumericView, itself
+        // a RowLayout) keeps its content-sized implicit width when the Loader
+        // grows wider than its content. Without this, Timecode's internal
+        // items (display + arrow-menu button) spread apart with a gap.
         RowLayout {
-            spacing: prv.spaceL
+            spacing: 0
 
             Timecode {
                 id: timecode
@@ -355,13 +293,8 @@ Item {
                 }
             }
 
-            StyledTextLabel {
+            Item {
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignVCenter
-                text: parameterData ? parameterData.units : ""
-                visible: parameterData && parameterData.units && parameterData.units.length > 0
-                horizontalAlignment: Text.AlignLeft
-                elide: Text.ElideRight
             }
         }
     }
@@ -370,44 +303,49 @@ Item {
     Component {
         id: fileControl
 
-        FilePicker {
-            id: filePicker
-            width: parent.width
+        RowLayout {
+            spacing: prv.spaceL
 
-            path: parameterData ? parameterData.currentValueString : ""
+            FilePicker {
+                id: filePicker
+                Layout.preferredWidth: prv.filePickerWidth
+                Layout.alignment: Qt.AlignVCenter
 
-            pickerType: {
-                if (!parameterData) {
+                path: parameterData ? parameterData.currentValueString : ""
+
+                pickerType: {
+                    if (!parameterData) {
+                        return FilePicker.PickerType.File
+                    }
+
+                    // If "save" flag is set, use Any type (save dialog)
+                    if (parameterData.isFileSave) {
+                        return FilePicker.PickerType.Any
+                    }
+
+                    // Otherwise use File type (open dialog)
+                    // Note: Multiple file selection is not yet fully supported in the Framework
+                    // but the flag is available for future implementation
                     return FilePicker.PickerType.File
                 }
 
-                // If "save" flag is set, use Any type (save dialog)
-                if (parameterData.isFileSave) {
-                    return FilePicker.PickerType.Any
+                enabled: parameterData ? !parameterData.isReadOnly : false
+
+                // Set file filters from parameterData
+                filter: {
+                    if (!parameterData || !parameterData.fileFilters || parameterData.fileFilters.length === 0) {
+                        return ""
+                    }
+                    // Join all filters with ";;" separator for Qt file dialog
+                    return parameterData.fileFilters.join(";;")
                 }
 
-                // Otherwise use File type (open dialog)
-                // Note: Multiple file selection is not yet fully supported in the Framework
-                // but the flag is available for future implementation
-                return FilePicker.PickerType.File
-            }
-
-            enabled: parameterData ? !parameterData.isReadOnly : false
-
-            // Set file filters from parameterData
-            filter: {
-                if (!parameterData || !parameterData.fileFilters || parameterData.fileFilters.length === 0) {
-                    return ""
+                onPathEdited: function (newPath) {
+                    // File selection is a single atomic operation - begin and end gesture immediately
+                    root.gestureStarted(root.parameterId)
+                    root.stringValueChanged(root.parameterId, newPath)
+                    root.gestureEnded(root.parameterId)
                 }
-                // Join all filters with ";;" separator for Qt file dialog
-                return parameterData.fileFilters.join(";;")
-            }
-
-            onPathEdited: function (newPath) {
-                // File selection is a single atomic operation - begin and end gesture immediately
-                root.gestureStarted(root.parameterId)
-                root.stringValueChanged(root.parameterId, newPath)
-                root.gestureEnded(root.parameterId)
             }
         }
     }
@@ -421,26 +359,23 @@ Item {
 
             TextInputField {
                 id: textField
-                Layout.preferredWidth: prv.controlWidth
+                Layout.preferredWidth: prv.textControlWidth
                 Layout.alignment: Qt.AlignVCenter
 
                 currentText: parameterData ? parameterData.currentValueString : ""
                 enabled: parameterData ? !parameterData.isReadOnly : false
 
-                onTextEdited: function (newTextValue) {
-                    root.gestureStarted(root.parameterId)
-                    root.stringValueChanged(root.parameterId, newTextValue)
-                    root.gestureEnded(root.parameterId)
+                onActiveFocusChanged: {
+                    if (activeFocus) {
+                        root.gestureStarted(root.parameterId)
+                    } else {
+                        root.gestureEnded(root.parameterId)
+                    }
                 }
-            }
 
-            StyledTextLabel {
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignVCenter
-                text: parameterData ? parameterData.units : ""
-                visible: parameterData && parameterData.units && parameterData.units.length > 0
-                horizontalAlignment: Text.AlignLeft
-                elide: Text.ElideRight
+                onTextEdited: function (newTextValue) {
+                    root.stringValueChanged(root.parameterId, newTextValue)
+                }
             }
         }
     }
@@ -453,8 +388,6 @@ Item {
             text: parameterData ? parameterData.formattedValue : ""
             opacity: 0.7
             wrapMode: Text.WordWrap
-            Layout.alignment: Qt.AlignVCenter
-            Layout.fillWidth: true
             horizontalAlignment: Text.AlignLeft
         }
     }

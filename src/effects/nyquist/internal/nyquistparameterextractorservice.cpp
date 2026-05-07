@@ -46,7 +46,9 @@ ParameterInfo convertControl(const NyqControl& ctrl)
     // Use variable name as ID
     info.id = String::fromStdString(au::au3::wxToStdString(ctrl.var));
     info.name = String::fromStdString(au::au3::wxToStdString(ctrl.name));
-    info.units = String::fromStdString(au::au3::wxToStdString(ctrl.label));
+    // Nyquist's ctrl.label is a freeform descriptor (e.g. "30 - 300 beats/minute"),
+    // not a unit symbol. Map it to `description`; leave `units` empty.
+    info.description = String::fromStdString(au::au3::wxToStdString(ctrl.label));
 
     info.type = convertControlType(ctrl.type);
 
