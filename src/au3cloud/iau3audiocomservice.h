@@ -60,7 +60,7 @@ public:
     virtual muse::RetVal<muse::ProgressPtr> shareAudio(const std::string& title) = 0;
     virtual muse::RetVal<muse::ProgressPtr> downloadAudioFile(const std::string& audioId) = 0;
 
-    virtual std::string getCloudProjectPage(const std::string& slug) const = 0;
+    virtual std::string getCloudProjectPage(const std::string& projectId) const = 0;
     virtual std::string getCloudAudioPage(const std::string& slug) const = 0;
 
     virtual void deinit() = 0;

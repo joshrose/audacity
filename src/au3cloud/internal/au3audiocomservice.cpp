@@ -430,14 +430,14 @@ void Au3AudioComService::stopProjectSync()
     m_resumeSyncSubscription.Reset();
 }
 
-std::string Au3AudioComService::getCloudProjectPage(const std::string& slug) const
+std::string Au3AudioComService::getCloudProjectPage(const std::string& projectId) const
 {
     auto& oauthService = GetOAuthService();
     const auto& serviceConfig = GetServiceConfig();
 
     const auto userId = GetUserService().GetUserId().ToStdString();
-    const auto userslug = GetUserService().GetUserSlug().ToStdString();
-    const auto projectPage = serviceConfig.GetProjectPagePath(userslug, slug, AudiocomTrace::OpenFromCloudMenu);
+    const auto userSlug = GetUserService().GetUserSlug().ToStdString();
+    const auto projectPage = serviceConfig.GetProjectPagePath(userSlug, projectId, AudiocomTrace::OpenFromCloudMenu);
     return oauthService.MakeAudioComAuthorizeURL(userId, projectPage);
 }
 
@@ -447,8 +447,8 @@ std::string Au3AudioComService::getCloudAudioPage(const std::string& slug) const
     const auto& serviceConfig = GetServiceConfig();
 
     const auto userId = GetUserService().GetUserId().ToStdString();
-    const auto userslug = GetUserService().GetUserSlug().ToStdString();
-    const auto audioPage = serviceConfig.GetAudioPagePath(userslug, slug, AudiocomTrace::OpenFromCloudMenu);
+    const auto userSlug = GetUserService().GetUserSlug().ToStdString();
+    const auto audioPage = serviceConfig.GetAudioPagePath(userSlug, slug, AudiocomTrace::OpenFromCloudMenu);
     return oauthService.MakeAudioComAuthorizeURL(userId, audioPage);
 }
 

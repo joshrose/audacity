@@ -32,7 +32,7 @@ public:
                                                      bool forceOverwrite = false) override;
     muse::RetVal<muse::ProgressPtr> resumeProjectSync(au::project::IAudacityProjectPtr project) override;
 
-    std::string getCloudProjectPage(const std::string& slug) const override;
+    std::string getCloudProjectPage(const std::string& projectId) const override;
     std::string getCloudAudioPage(const std::string& audioId) const override;
 
     void deinit() override;

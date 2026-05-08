@@ -38,6 +38,5 @@
         <file>qml/Audacity/Project/Message.qml</file>
         <file>qml/Audacity/Project/ProjectsListView.qml</file>
         <file>qml/Audacity/Project/ProjectsGridView.qml</file>
-        <file>qml/Audacity/Project/ProjectsListView.qml</file>
     </qresource>
 </RCC>

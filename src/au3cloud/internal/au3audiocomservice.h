@@ -73,7 +73,7 @@ public:
     muse::RetVal<muse::ProgressPtr> shareAudio(const std::string& title) override;
     muse::RetVal<muse::ProgressPtr> downloadAudioFile(const std::string& audioId) override;
 
-    std::string getCloudProjectPage(const std::string& slug) const override;
+    std::string getCloudProjectPage(const std::string& projectId) const override;
     std::string getCloudAudioPage(const std::string& slug) const override;
 
     void deinit() override;
