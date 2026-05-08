@@ -30,7 +30,7 @@ BuiltinEffectBase {
     Column {
         id: column
 
-        padding: 0
+        bottomPadding: 16
         spacing: 8
 
         Item {
@@ -201,24 +201,19 @@ BuiltinEffectBase {
                 })()
 
             Item {
-                // Clips the plot so that only the currently-visible dB band is shown.
-                // The PolylinePlot itself is sized for the full hard range, then
-                // scaled & offset so the [dbMin, dbMax] window aligns with this clip.
+                // Clips the plot so points whose dB falls outside [dbMin, dbMax]
+                // (the visible band) don't render their handles, while the
+                // polyline still exits the band with the correct slope.
                 id: plotClip
 
                 anchors.fill: parent
                 clip: true
 
-                readonly property real dbVisibleSpan: filterCurveEq.dbMax - filterCurveEq.dbMin
-                readonly property real dbHardSpan: filterCurveEq.dbHardMax - filterCurveEq.dbHardMin
-
                 PolylinePlot {
                     id: curve
 
                     width: plotClip.width
-                    height: plotClip.dbVisibleSpan > 0 ? plotClip.height * plotClip.dbHardSpan / plotClip.dbVisibleSpan : plotClip.height
-                    x: 0
-                    y: plotClip.dbVisibleSpan > 0 ? -plotClip.height * (filterCurveEq.dbHardMax - filterCurveEq.dbMax) / plotClip.dbVisibleSpan : 0
+                    height: plotClip.height
 
                     lineColor: ui.theme.accentColor
                     lineWidth: 2
@@ -239,9 +234,9 @@ BuiltinEffectBase {
                     xRangeFrom: 0.0
                     xRangeTo: 1.0
 
-                    yRangeFrom: filterCurveEq.dbHardMin
-                    yRangeTo: filterCurveEq.dbHardMax
-                    yAxisInverse: true
+                    yRangeFrom: filterCurveEq.dbMin
+                    yRangeTo: filterCurveEq.dbMax
+                    yAxisInverse: false
 
                     Component.onCompleted: {
                         curve.init()
@@ -250,7 +245,7 @@ BuiltinEffectBase {
                     function activePointFreq() {
                         const norm = curve.width > 0 ? (curve.activePointX / curve.width) : 0
                         if (filterCurveEq.linFreqScale) {
-                            return norm * filterCurveEq.hiFreq
+                            return filterCurveEq.loFreq + norm * (filterCurveEq.hiFreq - filterCurveEq.loFreq)
                         }
                         const loLog = Math.log(filterCurveEq.loFreq) / Math.LN10
                         const hiLog = Math.log(filterCurveEq.hiFreq) / Math.LN10

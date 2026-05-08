@@ -100,6 +100,7 @@ Item {
                     anchors.topMargin: root.xTickPosition === GridPlot.Bottom ? prv.labelMargin : undefined
 
                     text: modelData.label
+                    elide: Text.ElideNone
                 }
 
                 Rectangle {
@@ -132,6 +133,7 @@ Item {
                     anchors.rightMargin: root.yTickPosition === GridPlot.Left ? prv.labelMargin : undefined
                     y: isTop ? hLine.y : isBottom ? hLine.y - prv.labelHeight + 1 : hLine.y - (fontMetrics.ascent + fontMetrics.descent) / 2
                     text: modelData.label
+                    elide: Text.ElideNone
                 }
 
                 Rectangle {

@@ -15,13 +15,16 @@
 #include "shared/axis/axisticks.h"
 #include "types/number.h"
 
+#include <algorithm>
+
 namespace au::effects {
 namespace {
 // Tunable: each zoom step widens or narrows the visible dB range by this
 // amount on each side (so the total range changes by 2×step).
 constexpr float kZoomStepDb = 6.0f;
 constexpr float kMinDbHalfRange = 6.0f;    // smallest half-range allowed when zooming in
-constexpr float kMaxDbHalfRange = 60.0f;   // largest half-range allowed when zooming out
+constexpr float kDbHardMin = -120.0f;
+constexpr float kDbHardMax = 60.0f;
 }
 
 FilterCurveEqViewModel::FilterCurveEqViewModel(QObject* parent, int instanceId)
@@ -49,12 +52,12 @@ FilterCurveModel* FilterCurveEqViewModel::curveModel() const
 
 double FilterCurveEqViewModel::dbHardMin() const
 {
-    return -kMaxDbHalfRange;
+    return kDbHardMin;
 }
 
 double FilterCurveEqViewModel::dbHardMax() const
 {
-    return kMaxDbHalfRange;
+    return kDbHardMax;
 }
 
 double FilterCurveEqViewModel::dbMin() const
@@ -70,6 +73,10 @@ double FilterCurveEqViewModel::dbMax() const
 bool FilterCurveEqViewModel::canZoomIn() const
 {
     const auto& parameters = effect<FilterCurveEq>().mCurvesList.mParameters;
+    if (parameters.mdBMin < -kDbHardMax) {
+        // Asymmetric phase: lower bound can always be raised toward -kDbHardMax.
+        return true;
+    }
     return parameters.mdBMax - kZoomStepDb >= kMinDbHalfRange
            && -parameters.mdBMin - kZoomStepDb >= kMinDbHalfRange;
 }
@@ -77,8 +84,12 @@ bool FilterCurveEqViewModel::canZoomIn() const
 bool FilterCurveEqViewModel::canZoomOut() const
 {
     const auto& parameters = effect<FilterCurveEq>().mCurvesList.mParameters;
-    return parameters.mdBMax + kZoomStepDb <= kMaxDbHalfRange
-           && -parameters.mdBMin + kZoomStepDb <= kMaxDbHalfRange;
+    if (parameters.mdBMax >= kDbHardMax) {
+        // Upper bound capped; only the lower bound can still extend.
+        return parameters.mdBMin > kDbHardMin;
+    }
+    return parameters.mdBMax + kZoomStepDb <= kDbHardMax
+           && -parameters.mdBMin + kZoomStepDb <= kDbHardMax;
 }
 
 void FilterCurveEqViewModel::zoomIn()
@@ -87,8 +98,12 @@ void FilterCurveEqViewModel::zoomIn()
         return;
     }
     auto& parameters = effect<FilterCurveEq>().mCurvesList.mParameters;
-    parameters.mdBMin += kZoomStepDb;
-    parameters.mdBMax -= kZoomStepDb;
+    if (parameters.mdBMin < -kDbHardMax) {
+        parameters.mdBMin = std::min(parameters.mdBMin + kZoomStepDb, -kDbHardMax);
+    } else {
+        parameters.mdBMin += kZoomStepDb;
+        parameters.mdBMax -= kZoomStepDb;
+    }
     emit dbRangeChanged();
 }
 
@@ -98,8 +113,12 @@ void FilterCurveEqViewModel::zoomOut()
         return;
     }
     auto& parameters = effect<FilterCurveEq>().mCurvesList.mParameters;
-    parameters.mdBMin -= kZoomStepDb;
-    parameters.mdBMax += kZoomStepDb;
+    if (parameters.mdBMax >= kDbHardMax) {
+        parameters.mdBMin = std::max(parameters.mdBMin - kZoomStepDb, kDbHardMin);
+    } else {
+        parameters.mdBMin -= kZoomStepDb;
+        parameters.mdBMax += kZoomStepDb;
+    }
     emit dbRangeChanged();
 }
 
