@@ -14,9 +14,9 @@ constexpr const char* OPEN_PROJECT_ACTION = "cloud-file-open";
 constexpr const char* OPEN_PROJECT_PAGE_ACTION = "audacity://cloud/open-project-page";
 }
 
-CloudProjectContextMenuModel::CloudProjectContextMenuModel(QString projectId, QString slug, QString localPath, QString displayName,
+CloudProjectContextMenuModel::CloudProjectContextMenuModel(QString projectId, QString localPath, QString displayName,
                                                            QObject* parent)
-    : AbstractMenuModel(parent), m_projectId(std::move(projectId)), m_slug(std::move(slug)), m_localPath(std::move(localPath)),
+    : AbstractMenuModel(parent), m_projectId(std::move(projectId)),  m_localPath(std::move(localPath)),
     m_displayName(std::move(displayName))
 {
 }
@@ -50,7 +50,7 @@ void CloudProjectContextMenuModel::handleMenuItem(const QString& itemId)
         }
 
         muse::actions::ActionQuery query(OPEN_PROJECT_PAGE_ACTION);
-        query.addParam("slug", muse::Val(m_projectId));
+        query.addParam("id", muse::Val(m_projectId));
         dispatch(query);
         return;
     }

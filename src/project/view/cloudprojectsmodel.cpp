@@ -137,11 +137,10 @@ void CloudProjectsModel::loadItemsIfNecessary()
                     obj[SHOW_INDICATOR_KEY] = true;
 
                     const auto id = obj[CLOUD_ITEM_ID_KEY].toString();
-                    const auto slug = QString::fromStdString(item.slug);
                     const auto localPath = obj[PATH_KEY].toString();
                     const auto displayName = obj[NAME_KEY].toString();
                     obj[CONTEXT_MENU_MODEL_KEY] = QVariant::fromValue(
-                        new CloudProjectContextMenuModel(id, slug, localPath, displayName, this));
+                        new CloudProjectContextMenuModel(id, localPath, displayName, this));
 
                     m_items.push_back(obj);
                 }
