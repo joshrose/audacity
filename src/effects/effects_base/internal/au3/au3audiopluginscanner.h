@@ -23,22 +23,18 @@ public:
     void init();
     void deinit();
 
-    muse::io::paths_t scanPlugins() const override;
-
-    void setProgressDialog(BasicUI::ProgressDialog* progress);
+    muse::io::paths_t scanPlugins(muse::Progress* progress = nullptr) const override;
 
 protected:
-    virtual ::PluginPaths pluginPaths() const;
+    virtual ::PluginPaths pluginPaths(BasicUI::ProgressDialog* progress) const;
     virtual muse::io::paths_t customPaths() const { return {}; }
 
     PluginProvider& pluginProvider() const { return m_pluginProvider; }
-    BasicUI::ProgressDialog* progressDialog() const { return m_progress; }
 
 private:
     virtual void doInit() {}
     void syncCustomPathsToProvider() const;
 
     PluginProvider& m_pluginProvider;
-    BasicUI::ProgressDialog* m_progress { nullptr };
 };
 }

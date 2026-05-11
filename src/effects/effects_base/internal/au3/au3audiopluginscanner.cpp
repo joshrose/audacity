@@ -4,13 +4,64 @@
 
 #include "au3audiopluginscanner.h"
 
+#include <chrono>
+
+#include <QCoreApplication>
+#include <QEventLoop>
+
+#include "au3-basic-ui/BasicUI.h"
 #include "au3-module-manager/PluginManager.h"
 
 #include "au3wrap/internal/wxtypes_convert.h"
 
 #include "framework/global/io/dir.h"
+#include "framework/global/progress.h"
 
 namespace au::effects {
+namespace {
+//! Adapter exposing a muse::Progress as a BasicUI::ProgressDialog, so Audacity
+//! backend modules (VST3 / AU / LV2) which expect a real BasicUI::ProgressDialog*
+//! can drive cancellation through the host-supplied muse::Progress.
+class FrameworkProgressAsBasicUIDialog final : public BasicUI::ProgressDialog
+{
+public:
+    explicit FrameworkProgressAsBasicUIDialog(muse::Progress* inner)
+        : m_inner{inner} {}
+
+    BasicUI::ProgressResult Poll(unsigned long long numerator, unsigned long long denominator,
+                                 const TranslatableString& message) override
+    {
+        if (!m_inner) {
+            return BasicUI::ProgressResult::Success;
+        }
+
+        m_inner->progress(static_cast<int64_t>(numerator), static_cast<int64_t>(denominator),
+                          au3::wxToStdString(message.Translation()));
+
+        // The scan runs synchronously on the main thread, so we must pump the
+        // event loop periodically to let the host's progress dialog repaint and
+        // the cancel button respond.
+        using clock = std::chrono::steady_clock;
+        constexpr auto pumpInterval = std::chrono::milliseconds(100);
+        const auto now = clock::now();
+        if (now - m_lastEventPump >= pumpInterval) {
+            m_lastEventPump = now;
+            QCoreApplication::processEvents(QEventLoop::AllEvents);
+        }
+
+        return m_inner->isCanceled() ? BasicUI::ProgressResult::Cancelled : BasicUI::ProgressResult::Success;
+    }
+
+    void SetMessage(const TranslatableString&) override {}
+    void SetDialogTitle(const TranslatableString&) override {}
+    void Reinit() override {}
+
+private:
+    muse::Progress* m_inner { nullptr };
+    std::chrono::steady_clock::time_point m_lastEventPump {};
+};
+}
+
 Au3AudioPluginScanner::Au3AudioPluginScanner(PluginProvider& provider)
     : m_pluginProvider{provider}
 {
@@ -27,12 +78,7 @@ void Au3AudioPluginScanner::deinit()
     m_pluginProvider.Terminate();
 }
 
-void Au3AudioPluginScanner::setProgressDialog(BasicUI::ProgressDialog* progress)
-{
-    m_progress = progress;
-}
-
-muse::io::paths_t Au3AudioPluginScanner::scanPlugins() const
+muse::io::paths_t Au3AudioPluginScanner::scanPlugins(muse::Progress* progress) const
 {
     // Push user-configured custom paths into PluginManager so that providers
     // (e.g. VST3) which read them via ReadCustomPaths(*this) pick them up.
@@ -43,7 +89,12 @@ muse::io::paths_t Au3AudioPluginScanner::scanPlugins() const
 
     muse::io::paths_t result;
 
-    const PluginPaths paths = pluginPaths();
+    // Backend modules (VST3 / AU / LV2) accept a BasicUI::ProgressDialog*, so wrap the
+    // framework-side progress sink in a BasicUI::ProgressDialog adapter for the duration of the scan.
+    FrameworkProgressAsBasicUIDialog wrappedDialog{ progress };
+    BasicUI::ProgressDialog* dialogPtr = progress ? &wrappedDialog : nullptr;
+
+    const PluginPaths paths = pluginPaths(dialogPtr);
     for (const auto& path : paths) {
         const auto modulePath = path.BeforeFirst(';');
         auto convertedPath = muse::io::Dir::fromNativeSeparators(au3::wxToString(modulePath));
@@ -53,7 +104,7 @@ muse::io::paths_t Au3AudioPluginScanner::scanPlugins() const
     return result;
 }
 
-PluginPaths Au3AudioPluginScanner::pluginPaths() const
+PluginPaths Au3AudioPluginScanner::pluginPaths(BasicUI::ProgressDialog*) const
 {
     // PluginManager still needed here by some effect modules for the implementation of custom paths.
     return m_pluginProvider.FindModulePaths(PluginManager::Get());

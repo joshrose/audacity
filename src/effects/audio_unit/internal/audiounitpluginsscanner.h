@@ -16,11 +16,10 @@ public:
         : Au3AudioPluginScanner(m_auModule) {}
 
 protected:
-    ::PluginPaths pluginPaths() const override
+    ::PluginPaths pluginPaths(BasicUI::ProgressDialog* progress) const override
     {
-        BasicUI::ProgressDialog* progress = progressDialog();
         if (!progress) {
-            return Au3AudioPluginScanner::pluginPaths();
+            return Au3AudioPluginScanner::pluginPaths(progress);
         }
         return m_auModule.FindModulePaths(::PluginManager::Get(), progress);
     }

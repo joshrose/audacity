@@ -7,7 +7,6 @@
 #include "framework/global/modularity/ioc.h"
 
 #include "framework/audioplugins/iaudiopluginmetareaderregister.h"
-#include "framework/audioplugins/iaudiopluginsscannerregister.h"
 #include "framework/audioplugins/iknownaudiopluginsregister.h"
 #include "framework/audioplugins/iaudiopluginsconfiguration.h"
 #include "framework/global/io/ifilesystem.h"
@@ -29,7 +28,6 @@ class EffectsProvider : public IEffectsProvider, public muse::async::Asyncable
     muse::GlobalInject<IEffectsConfiguration> configuration;
     muse::GlobalInject<muse::audioplugins::IKnownAudioPluginsRegister> knownPluginsRegister;
     muse::GlobalInject<muse::audioplugins::IAudioPluginMetaReaderRegister> metaReaderRegister;
-    muse::GlobalInject<muse::audioplugins::IAudioPluginsScannerRegister> scannerRegister;
     muse::GlobalInject<muse::audioplugins::IAudioPluginsConfiguration> audioPluginsConfiguration;
     muse::GlobalInject<IEffectLoadersRegister> effectLoadersRegister;
     muse::GlobalInject<muse::io::IFileSystem> fileSystem;
@@ -67,7 +65,8 @@ private:
         No,
     };
 
-    NewPluginsRegistered doScanPlugins(muse::audioplugins::IRegisterAudioPluginsScenario& registerAudioPluginsScenario,
+    NewPluginsRegistered doScanPlugins(muse::IInteractive& interactive,
+                                       muse::audioplugins::IRegisterAudioPluginsScenario& registerAudioPluginsScenario,
                                        const std::function<bool()>& doScanThirdPartyPlugins = nullptr, const EffectFilter& accept = nullptr);
     void doSave(EffectFilter removeFromConfig = nullptr);
 

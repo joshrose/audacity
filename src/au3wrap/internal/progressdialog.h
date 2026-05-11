@@ -16,11 +16,21 @@ using ProgressResult = BasicUI::ProgressResult;
 
 class ProgressDialog : public BasicUI::ProgressDialog, public muse::async::Asyncable, public muse::Contextable
 {
-    muse::ContextInject<muse::IInteractive> interactive { this };
+    muse::ContextInject<muse::IInteractive> m_injectedInteractive { this };
+    muse::IInteractive* m_explicitInteractive { nullptr };
+
+    muse::IInteractive* interactive() const;
 
 public:
     ProgressDialog(const muse::modularity::ContextPtr& ctx, const TranslatableString& title = {});
     ProgressDialog(const muse::modularity::ContextPtr& ctx, const std::string& title);
+
+    //! Construct with an already-resolved IInteractive. Bypasses ContextInject so
+    //! callers that don't sit inside a per-window IoC context (e.g. host code
+    //! injected via GlobalInject) can still use the dialog without tripping
+    //! muse's ioc assertion.
+    ProgressDialog(muse::IInteractive& interactive, const TranslatableString& title = {});
+    ProgressDialog(muse::IInteractive& interactive, const std::string& title);
 
 public:
     virtual ~ProgressDialog();
@@ -39,6 +49,9 @@ public:
     {
         return m_cancelled;
     }
+
+    void start();
+    muse::Progress& progress() { return m_progress; }
 
 private:
     mutable muse::Progress m_progress;
