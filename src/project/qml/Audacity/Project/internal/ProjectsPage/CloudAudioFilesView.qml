@@ -2,8 +2,9 @@
 * Audacity: A Digital Audio Editor
 */
 
-import QtQuick 2.15
-import QtQuick.Controls 2.15
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
 
 import Muse.Ui 1.0
 import Muse.UiComponents
@@ -177,12 +178,16 @@ ProjectsView {
         ProjectsListView {
             id: list
 
-            readonly property int nameColumnWidth: 200
-            readonly property int thumbnailColumnWidth: 200
+            readonly property int nameColumnWidth: nameLabelWidth
             readonly property int modifiedColumnWidth: 100
             readonly property int durationColumnWidth: 100
             readonly property int sizeColumnWidth: 75
             readonly property int btnColumnWidth: 44
+
+            readonly property int nameLabelWidth: 200
+            readonly property int thumbnailMinimumWidth: 250
+            readonly property int thumbnailMaximumWidth: 800
+            readonly property int thumbnailHeight: 48
 
             anchors.fill: parent
 
@@ -204,52 +209,62 @@ ProjectsView {
                 ProjectsListView.ColumnItem {
                     id: nameColumn
 
-                    header: qsTrc("project", "Name")
-
                     width: nameColumnWidth
 
-                    delegate: StyledTextLabel {
-                        id: nameLabel
+                    header: qsTrc("project", "Name")
 
-                        text: item.name ?? ""
-                        font: ui.theme.largeBodyFont
-                        horizontalAlignment: Text.AlignLeft
+                    delegate: RowLayout {
+                        anchors.fill: parent
 
-                        NavigationFocusBorder {
-                            navigationCtrl: NavigationControl {
-                                name: "NameLabel"
-                                panel: navigationPanel
-                                row: navigationRow
-                                column: navigationColumnStart
-                                enabled: nameLabel.visible && nameLabel.enabled && !nameLabel.isEmpty
-                                accessible.name: nameColumn.header + ": " + nameLabel.text
-                                accessible.role: MUAccessible.StaticText
+                        StyledTextLabel {
+                            id: nameLabel
 
-                                onActiveChanged: function (active) {
-                                    if (active) {
-                                        listItem.scrollIntoView()
+                            Layout.preferredWidth: nameLabelWidth
+                            Layout.minimumWidth: nameLabelWidth
+
+                            text: item.name ?? ""
+                            font: ui.theme.largeBodyFont
+                            horizontalAlignment: Text.AlignLeft
+
+                            NavigationFocusBorder {
+                                navigationCtrl: NavigationControl {
+                                    name: "NameLabel"
+                                    panel: navigationPanel
+                                    row: navigationRow
+                                    column: navigationColumnStart
+                                    enabled: nameLabel.visible && nameLabel.enabled && !nameLabel.isEmpty
+                                    accessible.name: nameColumn.header + ": " + nameLabel.text
+                                    accessible.role: MUAccessible.StaticText
+
+                                    onActiveChanged: function (active) {
+                                        if (active) {
+                                            listItem.scrollIntoView()
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                },
-                ProjectsListView.ColumnItem {
-                    id: thumbnailColumn
 
-                    header: ""
+                        Item {
+                            id: thumbnailItem
 
-                    width: thumbnailColumnWidth
+                            visible: parent.width > (nameLabelWidth + thumbnailMinimumWidth)
+                            Layout.fillHeight: true
+                            Layout.fillWidth: true
 
-                    delegate: ProjectThumbnail {
-                        height: 48
+                            ProjectThumbnail {
+                                anchors.centerIn: parent
+                                width: Math.min(parent.width, thumbnailMaximumWidth)
+                                height: thumbnailHeight
 
-                        path: item.thumbnailUrl ?? ""
-                        placeholder: prv.placeholderFile
+                                path: item ? item.thumbnailUrl : ""
+                                placeholder: prv.placeholderFile
 
-                        backgroundColor: "transparent"
-                        lineColor: Qt.alpha(ui.theme.fontPrimaryColor, 0.8)
-                        borderColor: "transparent"
+                                backgroundColor: "transparent"
+                                lineColor: Qt.alpha(ui.theme.fontPrimaryColor, 0.8)
+                                borderColor: "transparent"
+                            }
+                        }
                     }
                 },
                 ProjectsListView.ColumnItem {
