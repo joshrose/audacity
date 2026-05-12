@@ -38,20 +38,32 @@ void ProgressDialog::SetDialogTitle(const TranslatableString& title)
     m_progressTitle = au::au3::wxToStdString(title.Translation());
 }
 
+muse::Progress& ProgressDialog::museProgress()
+{
+    ensureShown();
+    return m_progress;
+}
+
+void ProgressDialog::ensureShown()
+{
+    if (m_progress.isStarted()) {
+        return;
+    }
+    interactive()->showProgress(m_progressTitle, m_progress);
+
+    if (!m_canceledHooked) {
+        m_progress.canceled().onNotify(this, [this]() {
+            m_cancelled = true;
+        });
+        m_canceledHooked = true;
+    }
+
+    m_progress.start();
+}
+
 ProgressResult ProgressDialog::Poll(unsigned long long numerator, unsigned long long denominator, const TranslatableString& message)
 {
-    if (!m_progress.isStarted()) {
-        interactive()->showProgress(m_progressTitle, m_progress);
-
-        if (!m_canceledHooked) {
-            m_progress.canceled().onNotify(this, [this]() {
-                m_cancelled = true;
-            });
-            m_canceledHooked = true;
-        }
-
-        m_progress.start();
-    }
+    ensureShown();
 
     if (!message.empty()) {
         m_progressMessage = au::au3::wxToStdString(message.Translation());
