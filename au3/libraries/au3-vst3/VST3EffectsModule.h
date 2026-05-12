@@ -64,9 +64,7 @@ public:
     FilePath InstallPath() override;
     void AutoRegisterPlugins(PluginManagerInterface& pluginManager) override;
     bool SupportsCustomModulePaths() const override;
-    PluginPaths FindModulePaths(PluginManagerInterface& pluginManager) const override;
-
-    PluginPaths FindModulePaths(PluginManagerInterface& pluginManager, BasicUI::ProgressDialog* progress) const;
+    PluginPaths FindModulePaths(PluginManagerInterface& pluginManager, BasicUI::ProgressDialog* progress = nullptr) const override;
     unsigned DiscoverPluginsAtPath(const PluginPath& path, TranslatableString& errMsg, const RegistrationCallback& callback) override;
     bool CheckPluginExist(const PluginPath& path) const override;
     std::unique_ptr<ComponentInterface>

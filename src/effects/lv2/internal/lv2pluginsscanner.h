@@ -27,14 +27,6 @@ protected:
         return effectsConfiguration()->lv2CustomPaths();
     }
 
-    ::PluginPaths pluginPaths(BasicUI::ProgressDialog* progress) const override
-    {
-        if (!progress) {
-            return Au3AudioPluginScanner::pluginPaths(progress);
-        }
-        return m_lv2Module.FindModulePaths(::PluginManager::Get(), progress);
-    }
-
 private:
     void doInit() override
     {

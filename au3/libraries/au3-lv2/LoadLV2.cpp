@@ -233,11 +233,6 @@ void LV2EffectsModule::AutoRegisterPlugins(PluginManagerInterface& pluginManager
     lilv_world_load_all(LV2Symbols::gWorld);
 }
 
-PluginPaths LV2EffectsModule::FindModulePaths(PluginManagerInterface& pm) const
-{
-    return FindModulePaths(pm, nullptr);
-}
-
 PluginPaths LV2EffectsModule::FindModulePaths(PluginManagerInterface&,
                                               BasicUI::ProgressDialog* progress) const
 {

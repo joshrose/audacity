@@ -181,11 +181,6 @@ void AudioUnitEffectsModule::AutoRegisterPlugins(PluginManagerInterface&)
 {
 }
 
-PluginPaths AudioUnitEffectsModule::FindModulePaths(PluginManagerInterface& pm) const
-{
-    return FindModulePaths(pm, nullptr);
-}
-
 PluginPaths AudioUnitEffectsModule::FindModulePaths(PluginManagerInterface&,
                                                     BasicUI::ProgressDialog* progress) const
 {

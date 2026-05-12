@@ -217,12 +217,6 @@ bool VST3EffectsModule::SupportsCustomModulePaths() const
 }
 
 PluginPaths
-VST3EffectsModule::FindModulePaths(PluginManagerInterface& pluginManager) const
-{
-    return FindModulePaths(pluginManager, nullptr);
-}
-
-PluginPaths
 VST3EffectsModule::FindModulePaths(PluginManagerInterface& pluginManager,
                                    BasicUI::ProgressDialog* progress) const
 {

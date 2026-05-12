@@ -103,10 +103,10 @@ muse::io::paths_t Au3AudioPluginScanner::scanPlugins(muse::Progress* progress) c
     return result;
 }
 
-PluginPaths Au3AudioPluginScanner::pluginPaths(BasicUI::ProgressDialog*) const
+PluginPaths Au3AudioPluginScanner::pluginPaths(BasicUI::ProgressDialog* progress) const
 {
     // PluginManager still needed here by some effect modules for the implementation of custom paths.
-    return m_pluginProvider.FindModulePaths(PluginManager::Get());
+    return m_pluginProvider.FindModulePaths(PluginManager::Get(), progress);
 }
 
 void Au3AudioPluginScanner::syncCustomPathsToProvider() const
