@@ -199,6 +199,8 @@ FocusScope {
                     width: 20
                     height: width
 
+                    normalColor: ui.theme.buttonColor
+
                     menuModel: root.contextMenuModel
 
                     onHandleMenuItem: function (itemId) {
