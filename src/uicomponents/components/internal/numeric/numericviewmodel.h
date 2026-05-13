@@ -47,7 +47,7 @@ class NumericViewModel : public QAbstractListModel
     Q_PROPERTY(QQuickItem * visualItem READ visualItem WRITE setVisualItem)
 
 public:
-    explicit NumericViewModel(QObject* parent = nullptr);
+    explicit NumericViewModel(QObject* parent = nullptr, QList<NumericViewFormat> availableViewFormats = {});
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     QVariant data(const QModelIndex& index, int role) const override;
@@ -113,7 +113,10 @@ protected:
     int m_upperTimeSignature = 0;
     int m_lowerTimeSignature = 0;
 
-    QList<NumericViewFormat> m_availableViewFormats;
+    void updateAvailableFormatsCheckedState();
+
+    const QList<NumericViewFormat> m_availableViewFormats;
+    const muse::uicomponents::MenuItemList m_availableFormatsCache;
     NumericViewFormatType m_currentFormat = NumericViewFormatType::Undefined;
 
     std::shared_ptr<TimecodeFormatter> m_formatter;
