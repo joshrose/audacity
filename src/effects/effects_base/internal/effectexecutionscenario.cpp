@@ -438,6 +438,9 @@ muse::Ret EffectExecutionScenario::performGenerator(au3::Au3Project& project, Ef
             trackedit::ClipKeyList newClipsKeys;
             std::transform(newClips.begin(), newClips.end(), std::back_inserter(newClipsKeys),
                            [](const auto clip) { return clip->key; });
+            for (const auto* clip : newClips) {
+                prj->notifyAboutClipAdded(*clip);
+            }
             selectionController()->resetDataSelection();
             selectionController()->setSelectedClips(newClipsKeys, true);
         }
@@ -452,10 +455,22 @@ std::optional<au::trackedit::ClipId> EffectExecutionScenario::performEffectOnSin
                                                                                         trackedit::TrackId trackId,
                                                                                         muse::Ret& success)
 {
+    const auto prj = globalContext()->currentTrackeditProject();
+    const auto clipsBefore = prj->clipList(trackId);
+
     success = performEffectInternal(project, &effect, instance, settings);
     if (!success) {
         return std::nullopt;
     }
+
+    const auto clipsAfter = prj->clipList(trackId);
+    for (const trackedit::Clip* clip : trackedit::utils::clipSetDifference(clipsBefore, clipsAfter)) {
+        prj->notifyAboutClipRemoved(*clip);
+    }
+    for (const trackedit::Clip* clip : trackedit::utils::clipSetDifference(clipsAfter, clipsBefore)) {
+        prj->notifyAboutClipAdded(*clip);
+    }
+
     // It is possible that the backend decides to replace the processed clip with a new one.
     // Since the selection spans only one clip, we want the originally selected clip to remain selected in appearance.
     // Look for the clip on that track at that time - we should find the new one.
