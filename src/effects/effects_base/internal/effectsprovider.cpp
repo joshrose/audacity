@@ -78,6 +78,10 @@ EffectsProvider::NewPluginsRegistered EffectsProvider::doScanPlugins(
     muse::audioplugins::PluginScanResult scanResult;
     {
         au3::ProgressDialog progressDialog(ctx, muse::trc("audio", "Scanning audio plugins"));
+        // Scanners publish through `muse::Progress` directly (not via
+        // Poll), so the QML dialog wouldn't mount on its own. Open it
+        // explicitly before exposing the channel.
+        progressDialog.start();
         scanResult = registerAudioPluginsScenario.scanPlugins(&progressDialog.museProgress());
     }
 

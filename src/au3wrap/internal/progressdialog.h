@@ -41,17 +41,20 @@ public:
         return m_cancelled;
     }
 
-    //! Underlying progress channel. NOTE: calling this implicitly opens
-    //! the QML dialog if it hasn't been shown yet — callers that publish
-    //! through `muse::Progress` directly (e.g. plugin scanners that drive
-    //! `muse::Progress::progress(...)` instead of `Poll()`) would
-    //! otherwise miss the lazy mount inside `Poll()` and the dialog
-    //! would never appear.
-    muse::Progress& museProgress();
+    //! Open the QML dialog and start the underlying `muse::Progress`.
+    //! Callers that publish through `muse::Progress` directly (e.g. plugin
+    //! scanners that drive `muse::Progress::progress(...)` instead of
+    //! `Poll()`) must call this explicitly before reading `museProgress()`;
+    //! the no-Poll path otherwise leaves the dialog unmounted and nothing
+    //! appears on screen.
+    void start();
+
+    //! Underlying progress channel. Pure getter — does not mount the QML
+    //! dialog; call `start()` first if no `Poll()`-based driver is going
+    //! to do that on your behalf.
+    muse::Progress& museProgress() { return m_progress; }
 
 private:
-    void ensureShown();
-
     mutable muse::Progress m_progress;
     std::string m_progressTitle;
     std::string m_progressMessage;

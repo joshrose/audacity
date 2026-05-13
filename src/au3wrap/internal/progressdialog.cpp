@@ -38,13 +38,7 @@ void ProgressDialog::SetDialogTitle(const TranslatableString& title)
     m_progressTitle = au::au3::wxToStdString(title.Translation());
 }
 
-muse::Progress& ProgressDialog::museProgress()
-{
-    ensureShown();
-    return m_progress;
-}
-
-void ProgressDialog::ensureShown()
+void ProgressDialog::start()
 {
     if (m_progress.isStarted()) {
         return;
@@ -63,7 +57,7 @@ void ProgressDialog::ensureShown()
 
 ProgressResult ProgressDialog::Poll(unsigned long long numerator, unsigned long long denominator, const TranslatableString& message)
 {
-    ensureShown();
+    start();
 
     if (!message.empty()) {
         m_progressMessage = au::au3::wxToStdString(message.Translation());
