@@ -186,7 +186,6 @@ ProjectsView {
 
             readonly property int nameLabelWidth: 200
             readonly property int thumbnailMinimumWidth: 250
-            readonly property int thumbnailMaximumWidth: 800
             readonly property int thumbnailHeight: 48
 
             anchors.fill: parent
@@ -221,6 +220,7 @@ ProjectsView {
 
                             Layout.preferredWidth: nameLabelWidth
                             Layout.minimumWidth: nameLabelWidth
+                            Layout.fillWidth: !thumbnailItem.visible
 
                             text: item.name ?? ""
                             font: ui.theme.largeBodyFont
@@ -254,7 +254,7 @@ ProjectsView {
 
                             ProjectThumbnail {
                                 anchors.centerIn: parent
-                                width: Math.min(parent.width, thumbnailMaximumWidth)
+                                width: parent.width
                                 height: thumbnailHeight
 
                                 path: item ? item.thumbnailUrl : ""
