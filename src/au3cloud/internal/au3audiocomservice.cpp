@@ -84,11 +84,23 @@ void Au3AudioComService::init()
         if (std::holds_alternative<NotAuthorized>(authState)) {
             clearAudioListCache();
             clearProjectListCache();
+            stopProjectSync();
         }
     });
 
     appshellConfiguration()->aboutToRevertToFactorySettings().onNotify(this, []() {
         audacity::cloud::audiocom::sync::CloudProjectsDatabase::Get().CloseConnection();
+    });
+
+    globalContext()->currentProjectChanged().onNotify(this, [this]() {
+        const auto currentProject = globalContext()->currentProject();
+        if (!currentProject) {
+            return;
+        }
+
+        currentProject->aboutCloseBegin().onNotify(this, [this]() {
+            stopProjectSync();
+        }, muse::async::Asyncable::Mode::SetReplace);
     });
 }
 
@@ -402,13 +414,11 @@ muse::ValCh<bool> Au3AudioComService::syncingInProgressChanged() const
 
 void Au3AudioComService::stopProjectSync()
 {
-    if (m_syncInProgress.empty()) {
-        return;
-    }
-
-    for (auto& progress : m_syncInProgress) {
-        if (progress) {
-            progress->cancel();
+    if (!m_syncInProgress.empty()) {
+        for (auto& progress : m_syncInProgress) {
+            if (progress) {
+                progress->cancel();
+            }
         }
     }
 

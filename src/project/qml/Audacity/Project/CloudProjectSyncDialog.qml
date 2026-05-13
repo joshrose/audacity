@@ -77,7 +77,6 @@ StyledDialogView {
                 accentButton: true
 
                 onClicked: {
-                    model.stopSync()
                     root.ret = {
                         errcode: 0,
                         value: "stopped"

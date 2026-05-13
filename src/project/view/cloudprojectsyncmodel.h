@@ -22,7 +22,6 @@ public:
     explicit CloudProjectSyncModel(QObject* parent = nullptr);
 
     Q_INVOKABLE void load();
-    Q_INVOKABLE void stopSync();
 
     bool syncing() const;
 

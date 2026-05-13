@@ -19,11 +19,6 @@ void CloudProjectSyncModel::load()
     });
 }
 
-void CloudProjectSyncModel::stopSync()
-{
-    audioComService()->stopProjectSync();
-}
-
 bool CloudProjectSyncModel::syncing() const
 {
     return audioComService()->syncingInProgressChanged().val;
