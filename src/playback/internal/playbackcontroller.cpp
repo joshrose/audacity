@@ -438,7 +438,7 @@ void PlaybackController::doSeek(const muse::secs_t secs, bool applyIfPlaying)
 {
     seek(secs, applyIfPlaying);
     setLastPlaybackSeekTime(secs);
-    m_lastPlaybackRegion = {};
+    m_lastPlaybackRegion = { secs, secs };
     m_pauseShouldStopPlayback = false;
 }
 
