@@ -491,15 +491,10 @@ muse::async::Notification Au3Player::loopRegionChanged() const
     return m_loopRegionChanged;
 }
 
-void Au3Player::updatePlaybackState()
+void Au3Player::updateStreamState()
 {
     int token = ProjectAudioIO::Get(projectRef()).GetAudioIOToken();
     bool isActive = AudioIO::Get()->IsStreamActive(token);
-    const double time = std::max(0.0, AudioIO::Get()->GetStreamTime() + m_startOffset);
-
-    if (!muse::is_equal(time, m_playbackPosition.val.raw())) {
-        m_playbackPosition.set(time);
-    }
 
     if (!isActive) {
         if (playbackStatus() == PlaybackStatus::Running
@@ -512,9 +507,29 @@ void Au3Player::updatePlaybackState()
     }
 }
 
+void Au3Player::updatePlaybackState()
+{
+    const double time = std::max(0.0, AudioIO::Get()->GetStreamTime() + m_startOffset);
+
+    if (!muse::is_equal(time, m_playbackPosition.val.raw())) {
+        m_playbackPosition.set(time);
+    }
+
+    updateStreamState();
+}
+
 muse::secs_t Au3Player::playbackPosition() const
 {
     return m_playbackPosition.val;
+}
+
+void Au3Player::setPlaybackPosition(const muse::secs_t pos)
+{
+    //! NOTE: Updates only the visible playhead. Does not touch playRegion or
+    //! status — intended for cases where the playhead needs to track an
+    //! external position source (e.g. recording progress when there is no
+    //! playback stream to advance AudioIO::GetStreamTime()).
+    m_playbackPosition.set(std::max(0.0, pos.raw()));
 }
 
 void Au3Player::updatePlaybackPosition()
@@ -541,8 +556,11 @@ void Au3Player::updatePlaybackPosition()
 
     if (!m_currentTarget.has_value()) {
         // No DAC callbacks available (e.g. recording-only without overdub playback).
-        // Fall back to reading GetStreamTime() directly so the playhead still updates.
-        updatePlaybackState();
+        // GetStreamTime() does not advance here, so we deliberately skip the
+        // position write that updatePlaybackState() would do — the playhead is
+        // driven externally via setPlaybackPosition() in this case. Only the
+        // stream-state / timer cleanup is still needed.
+        updateStreamState();
         return;
     }
 

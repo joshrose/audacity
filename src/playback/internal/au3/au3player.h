@@ -64,6 +64,7 @@ public:
     void setLoopRegionActive(const bool active) override;
 
     muse::secs_t playbackPosition() const override;
+    void setPlaybackPosition(const muse::secs_t pos) override;
     void updatePlaybackPosition() override;
     muse::async::Channel<muse::secs_t> playbackPositionChanged() const override;
 
@@ -78,6 +79,7 @@ private:
 
     muse::Ret doPlayTracks(TrackList& trackList, double startTime, double endTime, const PlayTracksOptions& options = {});
 
+    void updateStreamState();
     void updatePlaybackState();
 
     muse::async::Notification m_loopRegionChanged;

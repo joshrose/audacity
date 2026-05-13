@@ -11,6 +11,7 @@
 #include "mocks/playermock.h"
 #include "project/tests/mocks/audacityprojectmock.h"
 #include "record/tests/mocks/recordcontrollermock.h"
+#include "record/tests/mocks/recordmock.h"
 #include "trackedit/tests/mocks/selectioncontrollermock.h"
 #include "trackedit/tests/mocks/trackeditprojectmock.h"
 
@@ -47,6 +48,12 @@ public:
 
         m_recordController = std::make_shared<record::RecordControllerMock>();
         m_controller->recordController.set(m_recordController);
+
+        m_record = std::make_shared<record::RecordMock>();
+        m_controller->record.set(m_record);
+
+        EXPECT_CALL(*m_record, recordPositionChanged())
+        .WillRepeatedly(Return(muse::async::Channel<muse::secs_t>()));
 
         m_selectionController = std::make_shared<trackedit::SelectionControllerMock>();
         m_controller->selectionController.set(m_selectionController);
@@ -128,6 +135,7 @@ public:
     std::shared_ptr<context::GlobalContextMock> m_globalContext;
     std::shared_ptr<actions::IActionsDispatcher> m_dispatcher;
     std::shared_ptr<record::RecordControllerMock> m_recordController;
+    std::shared_ptr<record::RecordMock> m_record;
     std::shared_ptr<trackedit::SelectionControllerMock> m_selectionController;
     std::shared_ptr<trackedit::TrackeditProjectMock> m_trackeditProject;
     std::shared_ptr<project::AudacityProjectMock> m_currentProject;
