@@ -93,33 +93,33 @@ signals:
     void editingFinished();
 
 protected:
+    void initFieldInteractionController();
+    void initFormatter();
+    void updateValueString(bool toNearest = true);
+    const NumericViewFormat& currentViewFormat() const;
+
+    double m_value = -1.0;
+    QString m_valueString;
+    NumericViewFormatType m_currentFormat = NumericViewFormatType::Undefined;
+
+    std::shared_ptr<TimecodeFormatter> m_formatter;
+    std::shared_ptr<FieldsInteractionController> m_fieldsInteractionController;
+
+private:
     enum Roles {
         rSymbol = Qt::UserRole + 1,
         rIsEditable
     };
 
-    void initFieldInteractionController();
-    void initFormatter();
-    void updateValueString(bool toNearest = true);
     virtual void reloadFormatter() = 0;
 
-    const NumericViewFormat& currentViewFormat() const;
-
-    double m_value = -1.0;
-    QString m_valueString;
+    void updateAvailableFormatsCheckedState();
+    const QList<NumericViewFormat> m_availableViewFormats;
+    const muse::uicomponents::MenuItemList m_availableFormatsCache;
 
     double m_sampleRate = 1.0;
     double m_tempo = 0;
     int m_upperTimeSignature = 0;
     int m_lowerTimeSignature = 0;
-
-    void updateAvailableFormatsCheckedState();
-
-    const QList<NumericViewFormat> m_availableViewFormats;
-    const muse::uicomponents::MenuItemList m_availableFormatsCache;
-    NumericViewFormatType m_currentFormat = NumericViewFormatType::Undefined;
-
-    std::shared_ptr<TimecodeFormatter> m_formatter;
-    std::shared_ptr<FieldsInteractionController> m_fieldsInteractionController;
 };
 }
