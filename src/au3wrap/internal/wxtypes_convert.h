@@ -22,7 +22,7 @@ inline muse::String wxToString(const wxString& s)
 
 inline wxString wxFromString(const muse::String& s)
 {
-    return wxString(s.toStdWString());
+    return wxString::FromUTF8(s.toStdString());
 }
 
 inline wxString wxFromStdString(const std::string& s)
