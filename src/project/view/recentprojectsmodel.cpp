@@ -89,11 +89,13 @@ void RecentProjectsModel::updateRecentProjects()
         RetVal<uint64_t> fileSize = fileSystem()->fileSize(file.path);
         QString fileSizeString = (fileSize.ret && fileSize.val > 0) ? DataFormatter::formatFileSize(fileSize.val).toQString() : QString();
 
+        const bool isCloud = configuration()->isCloudProject(file.path);
+
         obj[NAME_KEY] = file.displayName(false);
         obj[PATH_KEY] = file.path.toQString();
         obj[THUMBNAIL_URL_KEY] = obj[PATH_KEY];
         obj[FILE_SIZE_KEY] = fileSizeString;
-        obj[IS_CLOUD_KEY] = configuration()->isCloudProject(file.path);
+        obj[IS_CLOUD_KEY] = isCloud;
         obj[SHOW_INDICATOR_KEY] = obj[IS_CLOUD_KEY];
         // obj[CLOUD_PROJECT_ID_KEY] = configuration()->cloudProjectIdFromPath(file.path);
         obj[TIME_SINCE_MODIFIED_KEY] = DataFormatter::formatTimeSince(io::FileInfo(file.path).lastModified().date()).toQString();
@@ -101,7 +103,7 @@ void RecentProjectsModel::updateRecentProjects()
         obj[IS_NO_RESULTS_FOUND_KEY] = false;
 
         obj[CONTEXT_MENU_MODEL_KEY] = QVariant::fromValue(
-            new RecentProjectContextMenuModel(file.path.toQString(), file.displayNameOverride, this));
+            new RecentProjectContextMenuModel(isCloud, file.path.toQString(), file.displayNameOverride, this));
 
         items.push_back(obj);
     }

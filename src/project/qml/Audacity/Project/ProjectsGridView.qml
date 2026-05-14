@@ -130,6 +130,8 @@ Item {
             anchors.bottom: parent.bottom
             anchors.right: parent.right
 
+            policy: ScrollBar.AlwaysOn
+
             visible: view.contentHeight > view.height
             z: 2
         }
