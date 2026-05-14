@@ -9,6 +9,7 @@
 #include <QKeyEvent>
 
 #include "framework/global/types/retval.h"
+#include "framework/global/async/async.h"
 
 #include "au3wrap/iau3project.h"
 #include "au3wrap/internal/projectsnap.h"
@@ -214,13 +215,9 @@ void ProjectViewState::init(const std::shared_ptr<au3::IAu3Project>& project)
         }
 
         prj->trackRemoved().onReceive(this, [this](const trackedit::Track& track) {
-            auto it = m_tracks.find(track.id);
-            if (it == m_tracks.end()) {
-                return;
-            }
-            m_totalTracksHeight.set(m_totalTracksHeight.val - it->second.height.val);
+            recomputeTotalTrackHeight();
             m_verticalRulerWidth.set(calculateVerticalRulerWidth());
-            m_tracks.erase(it);
+            m_tracks.erase(track.id);
         });
 
         updateItemsBoundaries(false);
@@ -229,10 +226,12 @@ void ProjectViewState::init(const std::shared_ptr<au3::IAu3Project>& project)
         });
 
         prj->trackAdded().onReceive(this, [this](const trackedit::Track&) {
+            recomputeTotalTrackHeight();
             updateItemsBoundaries(false);
         });
 
         prj->trackInserted().onReceive(this, [this](const trackedit::Track&, int) {
+            recomputeTotalTrackHeight();
             updateItemsBoundaries(false);
         });
 
@@ -357,10 +356,24 @@ ProjectViewState::TrackData& ProjectViewState::makeTrackData(const trackedit::Tr
         }
     }
 
-    m_totalTracksHeight.set(m_totalTracksHeight.val + d.height.val);
     m_verticalRulerWidth.set(calculateVerticalRulerWidth());
 
     return m_tracks.insert({ trackId, d }).first->second;
+}
+
+void ProjectViewState::recomputeTotalTrackHeight()
+{
+    trackedit::ITrackeditProjectPtr prj = globalContext()->currentTrackeditProject();
+    if (!prj) {
+        m_totalTracksHeight.set(0);
+        return;
+    }
+
+    int total = 0;
+    for (const trackedit::TrackId& id : prj->trackIdList()) {
+        total += trackHeight(id).val;
+    }
+    m_totalTracksHeight.set(total);
 }
 
 bool ProjectViewState::doSetTrackViewType(const trackedit::TrackId& trackId, trackedit::TrackViewType viewType)
@@ -457,7 +470,7 @@ void ProjectViewState::changeTrackHeight(const trackedit::TrackId& trackId, int 
     d->height.set(newHeight);
     d->collapsed.set(newHeight < TRACK_COLLAPSE_HEIGHT);
 
-    m_totalTracksHeight.set(m_totalTracksHeight.val + (newHeight - oldHeight));
+    recomputeTotalTrackHeight();
 
     const project::IAudacityProjectPtr prj = globalContext()->currentProject();
     if (prj) {
@@ -479,12 +492,11 @@ void ProjectViewState::setTrackHeight(const trackedit::TrackId& trackId, int hei
         d = &makeTrackData(trackId);
     }
 
-    int oldHeight = d->height.val;
     int newHeight = std::max(height, TRACK_MIN_HEIGHT);
     d->height.set(newHeight);
     d->collapsed.set(height < TRACK_COLLAPSE_HEIGHT);
 
-    m_totalTracksHeight.set(m_totalTracksHeight.val + (newHeight - oldHeight));
+    recomputeTotalTrackHeight();
 
     const project::IAudacityProjectPtr prj = globalContext()->currentProject();
     if (prj) {
