@@ -188,7 +188,7 @@ StyledDialogView {
                         filter: exportPreferencesModel.fileFilter()
 
                         buttonType: FlatButton.Horizontal
-                        orientation: Qt.Horizontal
+                        buttonOrientation: Qt.Horizontal
 
                         path: exportPreferencesModel.directoryPath
                         dir: exportPreferencesModel.directoryPath

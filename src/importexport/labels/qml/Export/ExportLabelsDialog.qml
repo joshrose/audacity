@@ -154,7 +154,7 @@ StyledDialogView {
                     spacing: 8
 
                     buttonType: FlatButton.Horizontal
-                    orientation: Qt.Horizontal
+                    buttonOrientation: Qt.Horizontal
 
                     path: exportModel.directoryPath
 
