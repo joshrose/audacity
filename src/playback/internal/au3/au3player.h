@@ -12,6 +12,8 @@
 #include "trackedit/iselectioncontroller.h"
 #include "context/iglobalcontext.h"
 #include "audio/iaudioengine.h"
+#include "record/irecord.h"
+#include "record/irecordcontroller.h"
 
 #include "au3wrap/au3types.h"
 
@@ -28,6 +30,8 @@ class Au3Player : public IPlayer, public muse::async::Asyncable, public muse::Co
 
     muse::ContextInject<context::IGlobalContext> globalContext{ this };
     muse::ContextInject<au::trackedit::ISelectionController> selectionController{ this };
+    muse::ContextInject<au::record::IRecord> record{ this };
+    muse::ContextInject<au::record::IRecordController> recordController{ this };
 
 public:
 
@@ -64,7 +68,6 @@ public:
     void setLoopRegionActive(const bool active) override;
 
     muse::secs_t playbackPosition() const override;
-    void setPlaybackPosition(const muse::secs_t pos) override;
     void updatePlaybackPosition() override;
     muse::async::Channel<muse::secs_t> playbackPositionChanged() const override;
 

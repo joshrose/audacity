@@ -11,7 +11,6 @@
 #include "mocks/playermock.h"
 #include "project/tests/mocks/audacityprojectmock.h"
 #include "record/tests/mocks/recordcontrollermock.h"
-#include "record/tests/mocks/recordmock.h"
 #include "trackedit/tests/mocks/selectioncontrollermock.h"
 #include "trackedit/tests/mocks/trackeditprojectmock.h"
 
@@ -48,15 +47,6 @@ public:
 
         m_recordController = std::make_shared<record::RecordControllerMock>();
         m_controller->recordController.set(m_recordController);
-
-        m_record = std::make_shared<record::RecordMock>();
-        m_controller->record.set(m_record);
-
-        //! NOTE: Store the channel in the fixture so tests can publish to the
-        //! exact channel the controller subscribes to during init(). Channel
-        //! is shared_ptr-backed; copies returned from the mock share state.
-        EXPECT_CALL(*m_record, recordPositionChanged())
-        .WillRepeatedly(Return(m_recordPositionChannel));
 
         m_selectionController = std::make_shared<trackedit::SelectionControllerMock>();
         m_controller->selectionController.set(m_selectionController);
@@ -138,15 +128,12 @@ public:
     std::shared_ptr<context::GlobalContextMock> m_globalContext;
     std::shared_ptr<actions::IActionsDispatcher> m_dispatcher;
     std::shared_ptr<record::RecordControllerMock> m_recordController;
-    std::shared_ptr<record::RecordMock> m_record;
     std::shared_ptr<trackedit::SelectionControllerMock> m_selectionController;
     std::shared_ptr<trackedit::TrackeditProjectMock> m_trackeditProject;
     std::shared_ptr<project::AudacityProjectMock> m_currentProject;
 
     std::shared_ptr<PlaybackMock> m_playback;
     std::shared_ptr<PlayerMock> m_player;
-
-    muse::async::Channel<muse::secs_t> m_recordPositionChannel;
 };
 
 /**
@@ -786,43 +773,5 @@ TEST_F(PlaybackControllerTests, TogglePlay_AfterRecord_PlaysFromSeekToProjectEnd
 
     //! [WHEN] User presses Space
     togglePlay();
-}
-
-/**
- * @brief Record-position updates drive the playhead while recording.
- * @details While recording is active, each record-position update should be
- *          forwarded to the player as a new playhead position.
- */
-TEST_F(PlaybackControllerTests, RecordPositionChanged_UpdatesPlayhead_WhileRecording)
-{
-    //! [GIVEN] Recording is active
-    EXPECT_CALL(*m_recordController, isRecording())
-    .WillRepeatedly(Return(true));
-
-    //! [THEN] The new record position is forwarded to the player
-    EXPECT_CALL(*m_player, setPlaybackPosition(secs_t(5.5)))
-    .Times(1);
-
-    //! [WHEN] A record-position update is published
-    m_recordPositionChannel.send(muse::secs_t(5.5));
-}
-
-/**
- * @brief Record-position updates do not affect the playhead when not recording.
- * @details A record-position update arriving while recording is inactive
- *          must not change the playback position.
- */
-TEST_F(PlaybackControllerTests, RecordPositionChanged_DoesNotUpdatePlayhead_WhenNotRecording)
-{
-    //! [GIVEN] Not recording
-    EXPECT_CALL(*m_recordController, isRecording())
-    .WillRepeatedly(Return(false));
-
-    //! [THEN] No playhead write
-    EXPECT_CALL(*m_player, setPlaybackPosition(_))
-    .Times(0);
-
-    //! [WHEN] A record-position update is published
-    m_recordPositionChannel.send(muse::secs_t(5.5));
 }
 }

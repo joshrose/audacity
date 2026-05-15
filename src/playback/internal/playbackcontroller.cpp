@@ -87,16 +87,6 @@ void PlaybackController::init()
         m_isPlayAllowedChanged.notify();
     });
 
-    //! NOTE: During recording-only on an empty project, AudioIO::GetStreamTime()
-    //! does not advance (it tracks the playback schedule), so the playhead would
-    //! remain stuck at t=0. Mirror the recording position into the visible
-    //! playhead while recording is active.
-    record()->recordPositionChanged().onReceive(this, [this](const muse::secs_t& pos) {
-        if (recordController()->isRecording()) {
-            player()->setPlaybackPosition(pos);
-        }
-    });
-
     selectionController()->clipsSelected().onReceive(this, [this](const trackedit::ClipKeyList& clipKeyList) {
         if (clipKeyList.empty()) {
             return;

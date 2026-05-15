@@ -56,7 +56,6 @@ public:
     virtual void updatePlaybackPosition() = 0;
 
     virtual muse::secs_t playbackPosition() const = 0;
-    virtual void setPlaybackPosition(const muse::secs_t pos) = 0;
     virtual muse::async::Channel<muse::secs_t> playbackPositionChanged() const = 0;
 
     // tracks

@@ -17,7 +17,6 @@
 #include "playback/iplaybackconfiguration.h"
 #include "playback/iplaybackcontroller.h"
 #include "playback/iplayer.h"
-#include "record/irecord.h"
 #include "record/irecordcontroller.h"
 #include "trackedit/iselectioncontroller.h"
 
@@ -35,7 +34,6 @@ public:
     muse::ContextInject<IPlayback> playback { this };
     muse::ContextInject<muse::actions::IActionsDispatcher> dispatcher { this };
     muse::ContextInject<muse::IInteractive> interactive { this };
-    muse::ContextInject<record::IRecord> record{ this };
     muse::ContextInject<record::IRecordController> recordController{ this };
     muse::ContextInject<trackedit::ISelectionController> selectionController{ this };
 
