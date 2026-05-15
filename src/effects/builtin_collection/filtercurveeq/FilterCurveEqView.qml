@@ -27,6 +27,15 @@ BuiltinEffectBase {
         order: 1
     }
 
+    // Esc otherwise both cancels the drag and closes the dialog.
+    Binding {
+        target: root.dialogView
+        property: "closeOnEscape"
+        value: !curve.isDragging
+        when: root.dialogView !== null
+        restoreMode: Binding.RestoreBindingOrValue
+    }
+
     Column {
         id: column
 
@@ -214,6 +223,8 @@ BuiltinEffectBase {
                 PolylinePlot {
                     id: curve
 
+                    property bool isDragging: false
+
                     width: plotClip.width
                     height: plotClip.height
 
@@ -259,25 +270,35 @@ BuiltinEffectBase {
                         tooltip.gain = y
                         tooltip.freq = curve.activePointFreq()
                         tooltip.show(true)
+                        curve.isDragging = !completed
                     }
 
                     onPointAdded: function (x, y, completed) {
                         filterCurveEq.curveModel.addPoint(x, y, completed)
+                        curve.isDragging = !completed
                     }
 
                     onPointRemoved: function (index, completed) {
                         filterCurveEq.curveModel.removePoint(index, completed)
+                        if (completed) {
+                            curve.isDragging = false
+                        }
                     }
 
                     onDragCancelled: {
                         filterCurveEq.curveModel.cancelDrag()
                         tooltip.hide(true)
+                        // Defer so the closeOnEscape binding keeps the dialog open during the same Esc dispatch.
+                        Qt.callLater(function () {
+                            curve.isDragging = false
+                        })
                     }
 
                     onInteractionFinished: function () {
                         if (!curve.hasActivePoint) {
                             tooltip.hide(true)
                         }
+                        curve.isDragging = false
                     }
 
                     onActivePointChanged: {
